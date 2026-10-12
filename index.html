@@ -1,0 +1,590 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Near Vision Training Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column. Form sections stack as numbered sheets; the profile renders below as a clinical report; a slim progress bar sticks to the bottom. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --ink:#15202e; --muted:#5a6676; --line:#d6dce5;
+  --accent:#2e4ea6; --accent-soft:#e2e8f7; --sel-fg:#ffffff;
+  --ok:#2c7a57; --warn:#a86a12; --crit:#b13e2a;
+  --f-body:"IBM Plex Sans","IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-he:"IBM Plex Sans Hebrew","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e131b; --surface:#161d28; --ink:#e5eaf1; --muted:#98a4b5; --line:#2a3443;
+  --accent:#8ea7ec; --accent-soft:#1e2943; --sel-fg:#0e131b;
+  --ok:#5cbd8f; --warn:#e0a54a; --crit:#e5765f; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e131b; --surface:#161d28; --ink:#e5eaf1; --muted:#98a4b5; --line:#2a3443;
+  --accent:#8ea7ec; --accent-soft:#1e2943; --sel-fg:#0e131b;
+  --ok:#5cbd8f; --warn:#e0a54a; --crit:#e5765f; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 88px}
+html[lang="he"] body{font-family:var(--f-he)}
+.wrap{max-width:780px;margin-inline:auto;display:flex;flex-direction:column;gap:18px;padding-block:24px 0}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.2}
+p{margin:0}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+
+header.top{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;gap:14px;align-items:center;min-width:0}
+#gabor{width:56px;height:56px;border-radius:50%;flex:none;border:1px solid var(--line)}
+.brand h1{font-size:1.45rem;font-weight:700;letter-spacing:-.01em}
+.brand p{color:var(--muted);font-size:.9rem;max-width:52ch}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.lang button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:6px 14px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--sel-fg)}
+
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-soft);border:1px dashed var(--accent);border-radius:10px;padding:10px 14px;font-size:.9rem}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--accent);background:var(--accent);color:var(--sel-fg);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:focus-visible,.lang button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.sheet-h{display:flex;gap:10px;align-items:baseline}
+.sheet-h .tag{font-family:var(--f-mono);font-size:.75rem;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--accent);border-radius:4px;padding:1px 6px}
+.sheet-h h2{font-size:1.1rem;font-weight:600}
+.lead{color:var(--muted);font-size:.92rem}
+
+.ids{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+.field input{font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.field input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+.q{display:flex;flex-direction:column;gap:8px;padding-block:10px;border-top:1px solid var(--line)}
+.q:first-of-type{border-top:0}
+.q-text{display:flex;gap:10px;font-weight:500}
+.q-text .qn{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);min-width:2.2em;padding-top:2px}
+.scale{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.scale.dev{grid-template-columns:repeat(6,minmax(0,1fr))}
+.scale input,.chips input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.scale label,.chips label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;border:1px solid var(--line);border-radius:7px;padding:7px 4px;font-size:.78rem;line-height:1.2;cursor:pointer;background:var(--surface);color:var(--ink);min-height:44px;min-width:0;overflow-wrap:anywhere}
+.scale label .v{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.scale label:hover,.chips label:hover{border-color:var(--accent)}
+.scale input:checked+label,.chips input:checked+label{background:var(--accent);border-color:var(--accent);color:var(--sel-fg)}
+.scale input:checked+label .v{color:var(--sel-fg)}
+.scale input:focus-visible+label,.chips input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+.legend{font-size:.82rem;color:var(--muted)}
+.chips{position:relative;display:flex;flex-wrap:wrap;gap:6px}
+.chips label{flex-direction:row;padding:8px 12px;font-size:.85rem;min-height:40px}
+.missing .q-text{color:var(--crit)}
+
+/* report */
+#results{scroll-margin-top:16px}
+.report{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.r-head{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:18px;border-bottom:1px solid var(--line)}
+.score{display:flex;flex-direction:column;align-items:center;justify-content:center;width:112px;height:112px;border-radius:50%;border:6px solid var(--band,var(--accent));flex:none}
+.score b{font-family:var(--f-mono);font-size:2.2rem;font-weight:500;line-height:1}
+.score span{font-size:.72rem;color:var(--muted);font-family:var(--f-mono)}
+.r-meta{display:flex;flex-direction:column;gap:6px;min-width:0}
+.r-meta .who{font-size:.85rem;color:var(--muted)}
+.pill{display:inline-block;align-self:flex-start;border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600;color:var(--sel-fg);background:var(--band,var(--accent))}
+.r-meta .sum{font-size:1rem;font-weight:500}
+.r-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.r-sec{padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0;border-bottom:1px solid var(--line)}
+.r-sec+.r-sec{border-inline-start:1px solid var(--line)}
+.r-sec.full{grid-column:1/-1;border-inline-start:0}
+.r-sec h3{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.bar-row{display:grid;grid-template-columns:minmax(0,9em) 1fr 4.2em;gap:10px;align-items:center;font-size:.86rem}
+.bar{position:relative;height:10px;border-radius:5px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.bar i{position:absolute;inset-block:0;inset-inline-start:0;background:var(--accent);border-radius:5px}
+.bar .tick{position:absolute;inset-block:0;width:1px;background:var(--line)}
+.bar-row .val{text-align:end;font-family:var(--f-mono);font-size:.82rem}
+.bar-row.na{color:var(--muted)}
+.bar-row.top i{background:var(--warn)}
+.axis{display:grid;grid-template-columns:minmax(0,9em) 1fr 4.2em;gap:10px;font-family:var(--f-mono);font-size:.68rem;color:var(--muted)}
+.axis div{display:flex;justify-content:space-between;direction:ltr}
+html[dir="rtl"] .axis div{flex-direction:row-reverse}
+table.plan{width:100%;border-collapse:collapse;font-size:.9rem}
+table.plan th{text-align:start;font-weight:500;color:var(--muted);padding:8px 12px 8px 0;vertical-align:top;width:34%}
+html[dir="rtl"] table.plan th{padding:8px 0 8px 12px}
+table.plan td{padding:8px 0;vertical-align:top;font-weight:500}
+table.plan tr+tr th,table.plan tr+tr td{border-top:1px solid var(--line)}
+.flags{display:flex;flex-direction:column;gap:6px}
+.flag{border-inline-start:3px solid var(--warn);padding-inline-start:10px;font-size:.88rem}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.status{font-size:.85rem;color:var(--ok)}
+textarea#copybox{width:100%;min-height:90px;font-family:var(--f-mono);font-size:.78rem;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;direction:ltr}
+details{font-size:.86rem;color:var(--muted)}
+details summary{cursor:pointer;color:var(--accent)}
+details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:column;gap:4px}
+.empty{padding:22px 18px;color:var(--muted)}
+.note{font-size:.82rem;color:var(--muted)}
+
+.dock{position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.dock-in{max-width:780px;margin-inline:auto;display:flex;gap:12px;align-items:center}
+.prog{flex:1;display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}
+.prog .bar{height:6px}
+
+@media (max-width:620px){
+  .r-body{grid-template-columns:1fr}
+  .r-sec+.r-sec{border-inline-start:0}
+  .r-head{grid-template-columns:1fr;justify-items:start}
+  .scale label{font-size:.7rem;padding:6px 2px}
+  .bar-row,.axis{grid-template-columns:minmax(0,7em) 1fr 3.6em}
+}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .35s ease}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <canvas id="gabor" width="112" height="112" aria-hidden="true"></canvas>
+      <div><h1 id="t-title"></h1><p id="t-sub"></p></div>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" id="lang-he" data-l="he">עברית</button>
+      <button type="button" id="lang-en" data-l="en">English</button>
+    </div>
+  </header>
+
+  <div class="banner" id="banner">
+    <span id="t-example"></span>
+    <button type="button" class="btn" id="btn-new"></button>
+  </div>
+
+  <form id="form" novalidate></form>
+
+  <section id="results" aria-live="polite"></section>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <div class="prog"><span id="prog-text"></span><div class="bar"><i id="prog-bar"></i></div></div>
+    <button type="button" class="btn" id="btn-view"></button>
+  </div>
+</div>
+
+<script>
+const SYM = ['A1','A2','A3','C1','C2','C3','E1','E2','E3'];
+const IMP = ['I1','I2'];
+const DEV = ['phone','tablet','laptop','desktop','watch','paper'];
+const DIST = {phone:'35–40', tablet:'40', laptop:'50', desktop:'60', watch:'30–35', paper:'40'};
+const HOURS = ['lt2','2-4','4-6','gt6'];
+const CORR = ['none','readers','prog','cl'];
+const AVAIL = ['10x3','15x5','20x7','no'];
+const AVAIL_MIN = {'10x3':10,'15x5':15,'20x7':20};
+const AVAIL_WK = {'10x3':3,'15x5':5,'20x7':7};
+const TOTAL = SYM.length + DEV.length + IMP.length + 3;
+
+const T = {
+ he:{
+  title:'פרופיל אימון ראייה לקרוב',
+  sub:'שאלון קצר לנבדקים בני 40+. התשובות מחושבות לציון כמותי ולהמלצה איפה ואיך לתת דגש באימון ה־Gabor.',
+  example:'מוצגות תשובות לדוגמה של נבדק בדוי (EX-01). לחצו על "נבדק חדש" כדי להתחיל.',
+  newP:'נבדק חדש', code:'קוד נבדק', age:'גיל', date:'תאריך',
+  secA:'תסמינים בקריאה מקרוב', leadA:'בחודש האחרון, באיזו תדירות חווית כל אחד מהבאים?',
+  scale:['אף פעם','לעיתים רחוקות','לפעמים','לעיתים קרובות','תמיד'],
+  items:{
+   A1:'אותיות קטנות נראות מטושטשות',
+   A2:'אני מרחיק/ה את הטקסט כדי לקרוא אותו',
+   A3:'אני מגדיל/ה את הטקסט (זום או גופן גדול) כדי לקרוא בנוחות',
+   C1:'קשה לי לקרוא הדפסה דהויה או בניגודיות נמוכה',
+   C2:'אני צריך/ה יותר אור כדי לקרוא (במיוחד בתאורה עמומה)',
+   C3:'סנוור או השתקפויות מקשים עליי לקרוא (נייר מבריק, מסך בהיר)',
+   E1:'העיניים שלי מתעייפות או מתאמצות בקריאה מקרוב',
+   E2:'הטקסט מיטשטש ככל שאני קורא/ת יותר זמן',
+   E3:'יש לי כאב ראש אחרי עבודה מקרוב',
+   I1:'אני נמנע/ת מקריאה או מקצר/ת אותה בגלל הראייה',
+   I2:'הראייה לקרוב מגבילה אותי בפעילות היומיומית'
+  },
+  secB:'מכשירים', leadB:'כמה קשה לך לראות בבירור בכל מכשיר?',
+  legendB:'0 = לא קשה בכלל · 4 = קשה מאוד · — = לא משתמש/ת',
+  dev:{phone:'טלפון חכם',tablet:'טאבלט',laptop:'מחשב נייד',desktop:'מחשב שולחני',watch:'שעון חכם',paper:'נייר (ספרים, תוויות)'},
+  hoursQ:'כמה שעות ביום את/ה מול מסכים?', hours:['פחות מ־2','2–4','4–6','יותר מ־6'],
+  secC:'השפעה על היום־יום', leadC:'בחודש האחרון, באיזו תדירות?',
+  secD:'פרטים לתכנון האימון',
+  corrQ:'במה את/ה משתמש/ת כיום לקריאה?', corr:['שום דבר','משקפי קריאה','משקפיים מולטיפוקליים או ביפוקליים','עדשות מגע'],
+  availQ:'כמה זמן תוכל/י להקדיש לאימון ראייה קצר על מסך?', avail:['10 דק׳, 3 פעמים בשבוע','15 דק׳, 5 פעמים בשבוע','20 דק׳ או יותר, כל יום','לא מעוניין/ת'],
+  prog:(n,t)=>`${n} מתוך ${t} שאלות נענו`, view:'לפרופיל',
+  rTitle:'פרופיל הנבדק', incomplete:n=>`חסרות ${n} תשובות. השאלות שלא נענו מסומנות באדום.`,
+  nvsi:'מדד תסמינים (NVSI)', bands:['מינימלי','קל','בינוני','חמור'],
+  dom:{A:'חדות',C:'ניגודיות',E:'סיבולת',I:'השפעה תפקודית'},
+  domH:'ציונים לפי תחום', devH:'קושי לפי מכשיר', notUsed:'לא בשימוש',
+  planH:'המלצת אימון',
+  rows:{emph:'דגש עיקרי',split:'חלוקת בלוקים',gabor:'מיקוד Gabor',device:'מכשיר ומרחק אימון',session:'משך מפגש',freq:'תדירות',weekly:'מינון שבועי',corr:'תיקון אופטי באימון',prio:'עדיפות לשיבוץ'},
+  emph:{acuity:'חדות',contrast:'ניגודיות',balanced:'מאוזן'},
+  gabor:{acuity:'יותר בלוקים בתדרים מרחביים גבוהים (מטרות קטנות)',contrast:'יותר בלוקים בתדרים נמוכים־בינוניים, סמוך לסף הניגודיות',balanced:'חלוקה שווה בין תדרים גבוהים לעבודה סמוך לסף הניגודיות'},
+  split:(a,c)=>`${a}% חדות · ${c}% ניגודיות`,
+  devFmt:(d,x)=>`${d}, בערך ${x} ס״מ`,
+  paperDev:'טאבלט, בערך 40 ס״מ (הקרוב ביותר לקריאה מנייר)',
+  noDev:'אין מכשיר בעייתי: טלפון חכם, בערך 40 ס״מ',
+  sess:m=>`${m} דקות`, sessBreak:' עם הפסקה קצרה באמצע', weeklyFmt:m=>`${m} דקות בשבוע`,
+  flagAvail:(m,w,am,aw)=>`הנבדק ציין זמינות של ${am} דק׳ × ${aw} בשבוע, פחות מהמינון המומלץ (${m} דק׳, ${w===7?'כל יום':w+' פעמים בשבוע'}). יש לשוחח איתו על ההתמדה לפני השיבוץ.`,
+  freq:n=>`${n} פעמים בשבוע`, daily:'כל יום', none:'—',
+  corrTrain:['תיקון לרחוק בלבד (אם קיים). ללא תיקון לקרוב.','תיקון לרחוק בלבד, ללא משקפי הקריאה.','תיקון לרחוק בלבד. יש להוריד את המולטיפוקלים/ביפוקלים; נדרשים משקפי רחוק חד־מוקדיים או עדשות מגע לרחוק.','תיקון לרחוק בלבד. אם העדשות מולטיפוקליות, יש לעבור לעדשות לרחוק בלבד.'],
+  prio:{high:'גבוהה',med:'בינונית',low:'נמוכה'},
+  flagAge:'גיל מתחת ל־40: מחוץ לאוכלוסיית היעד של המחקר.',
+  flagNo:'הנבדק לא מעוניין באימון. ההמלצה מוצגת לצורך תיעוד בלבד.',
+  flagLow:'מעט תסמינים: מתאים כנבדק ביקורת או בעדיפות נמוכה.',
+  flagH:'הערות',
+  summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emph==='balanced'?'אימון מאוזן':'דגש על '+r.emphL} (${r.sA}/${r.sC}), אימון על ${r.devShort}, ${r.wk===7?'כל יום':`${r.wk} פעמים בשבוע`} × ${r.min} דק׳.`,
+  copySum:'העתק סיכום', copyCsv:'העתק שורת CSV', copied:'הועתק', copyFail:'ההעתקה נחסמה. הטקסט מסומן למטה, העתיקו ידנית.',
+  method:'איך מחושב',
+  methodItems:[
+   'כל תשובה מקבלת 0–4 (אף פעם = 0, תמיד = 4).',
+   'ציון תחום = סכום 3 השאלות שלו ÷ 12 × 100. השפעה = 2 שאלות ÷ 8 × 100.',
+   'NVSI = סכום 9 שאלות התסמינים ÷ 36 × 100. רמות: 0–24 מינימלי, 25–49 קל, 50–74 בינוני, 75–100 חמור.',
+   'דגש: הפרש חדות פחות ניגודיות של 15 נקודות ומעלה קובע דגש; אחרת מאוזן. חלוקת הבלוקים יחסית לשני הציונים, בטווח 30–70%, מעוגלת ל־10.',
+   'תדירות לפי חומרה (הגבוה מבין NVSI והשפעה): 75 ומעלה = כל יום, 50–74 = 5 פעמים בשבוע, 25–49 = 4 פעמים, מתחת ל־25 = 3 פעמים.',
+   'משך מפגש לפי סיבולת: 50 ומעלה = 12 דק׳ עם הפסקה, 25–49 = 15 דק׳, מתחת ל־25 = 20 דק׳. הזמינות שהנבדק ציין לא מורידה את המינון; אם היא נמוכה ממנו מופיעה הערה.',
+   'מכשיר: המכשיר עם ציון הקושי הגבוה ביותר. עדיפות: גבוהה אם NVSI או השפעה 50 ומעלה; נמוכה אם שניהם מתחת ל־25.'
+  ],
+  note:'ספי החומרה וכללי ההמלצה הם טיוטה למחקר ולא תוקפו. יש לאשר מול חדות הראייה ורגישות הניגודיות ב־40 ס״מ מהבדיקה האופטומטרית.'
+ },
+ en:{
+  title:'Near Vision Training Profile',
+  sub:'A short questionnaire for participants aged 40+. Answers turn into a quantitative score and a recommendation for where to focus the Gabor training.',
+  example:'Showing example answers for a made-up participant (EX-01). Press "New participant" to start.',
+  newP:'New participant', code:'Participant code', age:'Age', date:'Date',
+  secA:'Symptoms when reading up close', leadA:'In the last month, how often have you had each of the following?',
+  scale:['Never','Rarely','Sometimes','Often','Always'],
+  items:{
+   A1:'Small print looks blurry',
+   A2:'I hold text farther away to read it',
+   A3:'I enlarge text (zoom or a bigger font) to read comfortably',
+   C1:'Faded or low-contrast print is hard to read',
+   C2:'I need more light to read (especially in dim light)',
+   C3:'Glare or reflections make text hard to read (glossy paper, bright screens)',
+   E1:'My eyes get tired or strained when reading up close',
+   E2:'Text gets blurrier the longer I read',
+   E3:'I get headaches after close work',
+   I1:'I avoid or cut short reading because of my vision',
+   I2:'My near vision limits my daily activities'
+  },
+  secB:'Devices', leadB:'How hard is it to see clearly on each device?',
+  legendB:'0 = not hard at all · 4 = very hard · — = I don’t use it',
+  dev:{phone:'Smartphone',tablet:'Tablet',laptop:'Laptop',desktop:'Desktop computer',watch:'Smartwatch',paper:'Paper (books, labels)'},
+  hoursQ:'How many hours a day do you spend on screens?', hours:['Less than 2','2–4','4–6','More than 6'],
+  secC:'Effect on daily life', leadC:'In the last month, how often?',
+  secD:'Training details',
+  corrQ:'What do you use for reading now?', corr:['Nothing','Reading glasses','Progressive or bifocal glasses','Contact lenses'],
+  availQ:'How much time could you give to a short eye-training exercise on a screen?', avail:['10 min, 3 times a week','15 min, 5 times a week','20 min or more, daily','Not interested'],
+  prog:(n,t)=>`${n} of ${t} questions answered`, view:'View profile',
+  rTitle:'Participant profile', incomplete:n=>`${n} answers missing. Unanswered questions are marked in red.`,
+  nvsi:'Symptom index (NVSI)', bands:['Minimal','Mild','Moderate','Severe'],
+  dom:{A:'Acuity',C:'Contrast',E:'Endurance',I:'Daily impact'},
+  domH:'Domain scores', devH:'Difficulty by device', notUsed:'Not used',
+  planH:'Training recommendation',
+  rows:{emph:'Main emphasis',split:'Block split',gabor:'Gabor focus',device:'Training device and distance',session:'Session length',freq:'Frequency',weekly:'Weekly dose',corr:'Correction during training',prio:'Enrollment priority'},
+  emph:{acuity:'Acuity',contrast:'Contrast',balanced:'Balanced'},
+  gabor:{acuity:'More blocks at high spatial frequencies (small targets)',contrast:'More blocks at low to mid spatial frequencies, near the contrast threshold',balanced:'Even split between high spatial frequencies and near-threshold contrast work'},
+  split:(a,c)=>`${a}% acuity · ${c}% contrast`,
+  devFmt:(d,x)=>`${d}, about ${x} cm`,
+  paperDev:'Tablet, about 40 cm (closest to reading on paper)',
+  noDev:'No problem device: smartphone, about 40 cm',
+  sess:m=>`${m} minutes`, sessBreak:' with a short break halfway', weeklyFmt:m=>`${m} minutes a week`,
+  flagAvail:(m,w,am,aw)=>`The participant offered ${am} min × ${aw} a week, less than the recommended dose (${m} min, ${w===7?'daily':w+' times a week'}). Discuss adherence before enrolling.`,
+  freq:n=>`${n} times a week`, daily:'Daily', none:'—',
+  corrTrain:['Distance correction only (if any). No near correction.','Distance correction only, without the reading glasses.','Distance correction only. Remove the progressives/bifocals; single-vision distance glasses or distance contact lenses are needed.','Distance correction only. If the lenses are multifocal, switch to distance-only lenses.'],
+  prio:{high:'High',med:'Medium',low:'Low'},
+  flagAge:'Under 40: outside the study’s target population.',
+  flagNo:'Participant is not interested in training. The recommendation is shown for the record only.',
+  flagLow:'Few symptoms: suitable as a control or low-priority participant.',
+  flagH:'Notes',
+  summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emphL} emphasis (${r.sA}/${r.sC}), train on ${r.devShort}, ${r.wk===7?'daily':`${r.wk}×/week`} × ${r.min} min.`,
+  copySum:'Copy summary', copyCsv:'Copy CSV row', copied:'Copied', copyFail:'Copying was blocked. The text is selected below; copy it by hand.',
+  method:'How it is calculated',
+  methodItems:[
+   'Each answer scores 0–4 (Never = 0, Always = 4).',
+   'Domain score = sum of its 3 questions ÷ 12 × 100. Impact = 2 questions ÷ 8 × 100.',
+   'NVSI = sum of the 9 symptom questions ÷ 36 × 100. Bands: 0–24 minimal, 25–49 mild, 50–74 moderate, 75–100 severe.',
+   'Emphasis: acuity minus contrast of 15 points or more sets the emphasis; otherwise balanced. The block split follows the two scores, kept within 30–70% and rounded to 10.',
+   'Frequency follows severity (the higher of NVSI and impact): 75+ = daily, 50–74 = 5 times a week, 25–49 = 4 times, under 25 = 3 times.',
+   'Session length follows endurance: 50+ = 12 min with a break, 25–49 = 15 min, under 25 = 20 min. The participant\u2019s stated availability never lowers the dose; if it is lower, a note appears.',
+   'Device: the device with the highest difficulty. Priority: high if NVSI or impact is 50+; low if both are under 25.'
+  ],
+  note:'Severity cutoffs and recommendation rules are a study draft and have not been validated. Confirm against near acuity and contrast sensitivity at 40 cm from the optometric exam.'
+ }
+};
+
+const EXAMPLE = {
+  code:'EX-01', age:'52', date:new Date().toISOString().slice(0,10),
+  ans:{A1:3,A2:3,A3:2,C1:1,C2:2,C3:1,E1:2,E2:2,E3:1,I1:2,I2:1},
+  dev:{phone:3,tablet:2,laptop:1,desktop:1,watch:'na',paper:2},
+  hours:'4-6', corr:'readers', avail:'15x5'
+};
+function blank(){ return {code:'',age:'',date:new Date().toISOString().slice(0,10),ans:{},dev:{},hours:null,corr:null,avail:null}; }
+
+let lang = 'he';
+let S = JSON.parse(JSON.stringify(EXAMPLE));
+let isExample = true;
+let showMissing = false;
+try{ const l = localStorage.getItem('nvtp-lang'); if(l==='he'||l==='en') lang=l; }catch(e){}
+
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function scaleQ(id, n, text){
+  const t = T[lang];
+  const miss = showMissing && S.ans[id]===undefined;
+  let h = `<div class="q${miss?' missing':''}" id="q-${id}"><div class="q-text"><span class="qn">${n}</span><span>${esc(text)}</span></div><div class="scale" role="radiogroup" aria-label="${esc(text)}">`;
+  t.scale.forEach((lab,v)=>{
+    const iid = `r-${id}-${v}`;
+    h += `<input type="radio" name="${id}" id="${iid}" value="${v}" data-k="ans" data-id="${id}"${S.ans[id]===v?' checked':''}><label for="${iid}">${esc(lab)}<span class="v">${v}</span></label>`;
+  });
+  return h + `</div></div>`;
+}
+function devQ(d, n){
+  const t = T[lang];
+  const miss = showMissing && S.dev[d]===undefined;
+  let h = `<div class="q${miss?' missing':''}" id="q-${d}"><div class="q-text"><span class="qn">${n}</span><span>${esc(t.dev[d])}</span></div><div class="scale dev" role="radiogroup" aria-label="${esc(t.dev[d])}">`;
+  ['na',0,1,2,3,4].forEach(v=>{
+    const iid = `d-${d}-${v}`;
+    h += `<input type="radio" name="dev-${d}" id="${iid}" value="${v}" data-k="dev" data-id="${d}"${S.dev[d]===v?' checked':''}><label for="${iid}">${v==='na'?'—':v}</label>`;
+  });
+  return h + `</div></div>`;
+}
+function chipQ(key, n, q, opts, labels){
+  const miss = showMissing && !S[key];
+  let h = `<div class="q${miss?' missing':''}" id="q-${key}"><div class="q-text"><span class="qn">${n}</span><span>${esc(q)}</span></div><div class="chips" role="radiogroup" aria-label="${esc(q)}">`;
+  opts.forEach((o,i)=>{
+    const iid = `c-${key}-${o}`;
+    h += `<input type="radio" name="${key}" id="${iid}" value="${o}" data-k="${key}"${S[key]===o?' checked':''}><label for="${iid}">${esc(labels[i])}</label>`;
+  });
+  return h + `</div></div>`;
+}
+
+function renderForm(){
+  const t = T[lang];
+  let n = 0, h = '';
+  h += `<div class="sheet"><div class="ids">
+    <label class="field">${t.code}<input id="f-code" data-f="code" value="${esc(S.code)}" autocomplete="off"></label>
+    <label class="field">${t.age}<input id="f-age" data-f="age" inputmode="numeric" value="${esc(S.age)}"></label>
+    <label class="field">${t.date}<input id="f-date" data-f="date" type="date" value="${esc(S.date)}"></label>
+  </div></div>`;
+  h += `<div class="sheet"><div class="sheet-h"><span class="tag">A</span><h2>${t.secA}</h2></div><p class="lead">${t.leadA}</p>`;
+  SYM.forEach(id=>{ h += scaleQ(id, ++n, t.items[id]); });
+  h += `</div>`;
+  h += `<div class="sheet"><div class="sheet-h"><span class="tag">B</span><h2>${t.secB}</h2></div><p class="lead">${t.leadB}</p><p class="legend">${t.legendB}</p>`;
+  DEV.forEach(d=>{ h += devQ(d, ++n); });
+  h += chipQ('hours', ++n, t.hoursQ, HOURS, t.hours);
+  h += `</div>`;
+  h += `<div class="sheet"><div class="sheet-h"><span class="tag">C</span><h2>${t.secC}</h2></div><p class="lead">${t.leadC}</p>`;
+  IMP.forEach(id=>{ h += scaleQ(id, ++n, t.items[id]); });
+  h += `</div>`;
+  h += `<div class="sheet"><div class="sheet-h"><span class="tag">D</span><h2>${t.secD}</h2></div>`;
+  h += chipQ('corr', ++n, t.corrQ, CORR, t.corr);
+  h += chipQ('avail', ++n, t.availQ, AVAIL, t.avail);
+  h += `</div>`;
+  document.getElementById('form').innerHTML = h;
+}
+
+function answered(){
+  let c = 0;
+  SYM.concat(IMP).forEach(id=>{ if(S.ans[id]!==undefined) c++; });
+  DEV.forEach(d=>{ if(S.dev[d]!==undefined) c++; });
+  ['hours','corr','avail'].forEach(k=>{ if(S[k]) c++; });
+  return c;
+}
+const sum = ids => ids.reduce((a,id)=>a+S.ans[id],0);
+const pct = (v,max) => Math.round(v/max*100);
+const bandIdx = v => v<25?0:v<50?1:v<75?2:3;
+const BAND_COL = ['var(--ok)','var(--accent)','var(--warn)','var(--crit)'];
+
+function compute(){
+  const t = T[lang];
+  const A = pct(sum(['A1','A2','A3']),12), C = pct(sum(['C1','C2','C3']),12), E = pct(sum(['E1','E2','E3']),12);
+  const I = pct(sum(IMP),8), nvsi = pct(sum(SYM),36);
+  const diff = A - C;
+  const emph = diff>=15?'acuity':diff<=-15?'contrast':'balanced';
+  let sA = (A+C)===0 ? 50 : Math.round(A/(A+C)*10)*10;
+  sA = Math.min(70, Math.max(30, sA));
+  if(emph==='balanced') sA = Math.min(60, Math.max(40, sA));
+  const sC = 100 - sA;
+  const used = DEV.filter(d=>S.dev[d]!=='na');
+  const maxV = used.length ? Math.max(...used.map(d=>S.dev[d])) : 0;
+  const top = maxV>0 ? used.filter(d=>S.dev[d]===maxV) : [];
+  let devText, devShort, devCode;
+  if(!top.length){ devText = t.noDev; devShort = t.dev.phone; devCode='phone'; }
+  else {
+    const d = top[0]; devCode = d;
+    devText = d==='paper' ? t.paperDev : t.devFmt(top.filter(x=>x!=='paper').map(x=>t.dev[x]).join(' / ') || t.dev[d], DIST[d]);
+    devShort = d==='paper' ? t.dev.tablet : t.dev[d];
+  }
+  const cap = E>=50?12:E>=25?15:20;
+  const notInt = S.avail==='no';
+  const need = Math.max(nvsi, I);
+  const wk = need>=75?7:need>=50?5:need>=25?4:3;
+  const min = cap;
+  const weekly = min*wk;
+  const prio = (nvsi>=50||I>=50)?'high':(nvsi<25&&I<25)?'low':'med';
+  const flags = [];
+  const age = parseInt(S.age,10);
+  if(!isNaN(age) && age<40) flags.push(t.flagAge);
+  if(notInt) flags.push(t.flagNo);
+  else if(AVAIL_WK[S.avail]<wk || AVAIL_MIN[S.avail]<min) flags.push(t.flagAvail(min,wk,AVAIL_MIN[S.avail],AVAIL_WK[S.avail]));
+  if(nvsi<25) flags.push(t.flagLow);
+  return {A,C,E,I,nvsi,band:t.bands[bandIdx(nvsi)],bi:bandIdx(nvsi),emph,emphL:t.emph[emph],sA,sC,devText,devShort,devCode,top,min,wk,weekly,need,cap,prio,flags,maxV};
+}
+
+function barRow(label, v, extra, cls){
+  if(v===null) return `<div class="bar-row na"><span>${esc(label)}</span><div class="bar"></div><span class="val">${esc(extra)}</span></div>`;
+  return `<div class="bar-row${cls?' '+cls:''}"><span>${esc(label)}</span><div class="bar"><span class="tick" style="inset-inline-start:25%"></span><span class="tick" style="inset-inline-start:50%"></span><span class="tick" style="inset-inline-start:75%"></span><i style="width:${v}%"></i></div><span class="val">${extra}</span></div>`;
+}
+const axis = () => `<div class="axis"><span></span><div><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><span></span></div>`;
+
+function renderResults(){
+  const t = T[lang];
+  const el = document.getElementById('results');
+  const missing = TOTAL - answered();
+  if(missing>0){
+    el.innerHTML = `<div class="report"><div class="r-head" style="grid-template-columns:1fr"><h2>${t.rTitle}</h2></div><p class="empty">${t.incomplete(missing)}</p></div>`;
+    return;
+  }
+  const r = compute();
+  const who = [S.code||'—', S.age?`${t.age} ${S.age}`:'', S.date].filter(Boolean).join(' · ');
+  let h = `<div class="report" style="--band:${BAND_COL[r.bi]}">`;
+  h += `<div class="r-head"><div class="score"><b>${r.nvsi}</b><span>/ 100</span></div><div class="r-meta"><span class="who"><span class="num">${esc(who)}</span></span><h2>${t.rTitle}</h2><span class="pill">${t.nvsi}: ${r.band}</span><p class="sum">${esc(t.summary(r))}</p></div></div>`;
+  h += `<div class="r-body">`;
+  h += `<div class="r-sec"><h3>${t.domH}</h3>`;
+  const domMax = Math.max(r.A,r.C,r.E);
+  [['A',r.A,sum(['A1','A2','A3']),12],['C',r.C,sum(['C1','C2','C3']),12],['E',r.E,sum(['E1','E2','E3']),12],['I',r.I,sum(IMP),8]].forEach(([k,v])=>{
+    h += barRow(t.dom[k], v, `${v}`, (k!=='I' && v===domMax && v>0)?'top':'');
+  });
+  h += axis() + `</div>`;
+  h += `<div class="r-sec"><h3>${t.devH}</h3>`;
+  DEV.slice().sort((a,b)=>{
+    const va = S.dev[a]==='na'?-1:S.dev[a], vb = S.dev[b]==='na'?-1:S.dev[b]; return vb-va;
+  }).forEach(d=>{
+    if(S.dev[d]==='na') h += barRow(t.dev[d], null, t.notUsed);
+    else h += barRow(t.dev[d], S.dev[d]*25, `${S.dev[d]}/4`, (r.maxV>0 && S.dev[d]===r.maxV)?'top':'');
+  });
+  h += axis() + `</div>`;
+  h += `<div class="r-sec full"><h3>${t.planH}</h3><table class="plan"><tbody>
+    <tr><th>${t.rows.emph}</th><td>${esc(r.emphL)} <span class="num">(${r.A} / ${r.C})</span></td></tr>
+    <tr><th>${t.rows.split}</th><td>${esc(t.split(r.sA,r.sC))}</td></tr>
+    <tr><th>${t.rows.gabor}</th><td>${esc(t.gabor[r.emph])}</td></tr>
+    <tr><th>${t.rows.device}</th><td>${esc(r.devText)}</td></tr>
+    <tr><th>${t.rows.freq}</th><td>${r.wk===7?t.daily:esc(t.freq(r.wk))} <span class="num">(${r.need})</span></td></tr>
+    <tr><th>${t.rows.session}</th><td>${esc(t.sess(r.min)+(r.E>=50?t.sessBreak:''))}</td></tr>
+    <tr><th>${t.rows.weekly}</th><td>${esc(t.weeklyFmt(r.weekly))}</td></tr>
+    <tr><th>${t.rows.corr}</th><td>${esc(t.corrTrain[CORR.indexOf(S.corr)])}</td></tr>
+    <tr><th>${t.rows.prio}</th><td>${t.prio[r.prio]}</td></tr>
+  </tbody></table></div>`;
+  if(r.flags.length) h += `<div class="r-sec full"><h3>${t.flagH}</h3><div class="flags">${r.flags.map(f=>`<p class="flag">${esc(f)}</p>`).join('')}</div></div>`;
+  h += `<div class="r-sec full"><div class="actions"><button type="button" class="btn" id="copy-sum">${t.copySum}</button><button type="button" class="btn ghost" id="copy-csv">${t.copyCsv}</button><span class="status" id="copy-status" role="status"></span></div>
+    <textarea id="copybox" readonly hidden aria-label="Copy text"></textarea>
+    <details><summary>${t.method}</summary><ul>${t.methodItems.map(m=>`<li>${esc(m)}</li>`).join('')}</ul></details>
+    <p class="note">${t.note}</p></div>`;
+  h += `</div></div>`;
+  el.innerHTML = h;
+  document.getElementById('copy-sum').onclick = ()=>copyText(summaryText(r));
+  document.getElementById('copy-csv').onclick = ()=>copyText(csvText(r));
+}
+
+function summaryText(r){
+  const t = T[lang];
+  const lines = [
+    `${t.rTitle}: ${S.code||'—'} · ${t.age} ${S.age||'—'} · ${S.date}`,
+    `${t.nvsi}: ${r.nvsi}/100 (${r.band})`,
+    `${t.dom.A} ${r.A} · ${t.dom.C} ${r.C} · ${t.dom.E} ${r.E} · ${t.dom.I} ${r.I}`,
+    `${t.rows.emph}: ${r.emphL} — ${t.split(r.sA,r.sC)}`,
+    `${t.rows.gabor}: ${t.gabor[r.emph]}`,
+    `${t.rows.device}: ${r.devText}`,
+    `${t.rows.freq}: ${r.wk===7?t.daily:t.freq(r.wk)} · ${t.rows.session}: ${t.sess(r.min)+(r.E>=50?t.sessBreak:'')} · ${t.rows.weekly}: ${t.weeklyFmt(r.weekly)}`,
+    `${t.rows.corr}: ${t.corrTrain[CORR.indexOf(S.corr)]}`,
+    `${t.rows.prio}: ${t.prio[r.prio]}`
+  ];
+  r.flags.forEach(f=>lines.push('• '+f));
+  return lines.join('\n');
+}
+function csvText(r){
+  const head = ['code','age','date','nvsi','band','acuity','contrast','endurance','impact','emphasis','split_acuity','split_contrast','train_device','session_min','sessions_week','weekly_min','priority',...SYM,...IMP,...DEV.map(d=>'dev_'+d),'screen_hours','correction','availability'];
+  const band = T.en.bands[r.bi].toLowerCase();
+  const vals = [S.code,S.age,S.date,r.nvsi,band,r.A,r.C,r.E,r.I,r.emph,r.sA,r.sC,r.devCode==='paper'?'tablet':r.devCode,r.min,r.wk,r.weekly,r.prio,...SYM.map(i=>S.ans[i]),...IMP.map(i=>S.ans[i]),...DEV.map(d=>S.dev[d]),S.hours,S.corr,S.avail];
+  const q = v => { v = String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; };
+  return head.join(',') + '\n' + vals.map(q).join(',');
+}
+function copyText(txt){
+  const t = T[lang];
+  const st = document.getElementById('copy-status');
+  const box = document.getElementById('copybox');
+  const fallback = ()=>{ box.hidden=false; box.value=txt; box.focus(); box.select(); st.textContent=t.copyFail; st.style.color='var(--warn)'; };
+  try{
+    navigator.clipboard.writeText(txt).then(()=>{ box.hidden=true; st.style.color=''; st.textContent=t.copied; setTimeout(()=>{st.textContent='';},2000); }, fallback);
+  }catch(e){ fallback(); }
+}
+
+function renderChrome(){
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang==='he'?'rtl':'ltr';
+  document.getElementById('t-title').textContent = t.title;
+  document.getElementById('t-sub').textContent = t.sub;
+  document.getElementById('t-example').textContent = t.example;
+  document.getElementById('btn-new').textContent = t.newP;
+  document.getElementById('btn-view').textContent = t.view;
+  document.getElementById('banner').hidden = !isExample;
+  document.getElementById('lang-he').setAttribute('aria-pressed', lang==='he');
+  document.getElementById('lang-en').setAttribute('aria-pressed', lang==='en');
+}
+function renderProgress(){
+  const a = answered();
+  document.getElementById('prog-text').textContent = T[lang].prog(a, TOTAL);
+  document.getElementById('prog-bar').style.width = (a/TOTAL*100)+'%';
+}
+function renderAll(){ renderChrome(); renderForm(); renderProgress(); renderResults(); }
+
+document.getElementById('form').addEventListener('change', e=>{
+  const el = e.target;
+  if(el.type==='radio'){
+    const k = el.dataset.k, v = el.value;
+    if(k==='ans') S.ans[el.dataset.id] = +v;
+    else if(k==='dev') S.dev[el.dataset.id] = v==='na'?'na':+v;
+    else S[k] = v;
+    const q = el.closest('.q'); if(q) q.classList.remove('missing');
+    renderProgress(); renderResults();
+  }
+});
+document.getElementById('form').addEventListener('input', e=>{
+  const f = e.target.dataset.f;
+  if(f){ S[f] = e.target.value; renderResults(); }
+});
+document.getElementById('form').addEventListener('submit', e=>e.preventDefault());
+document.getElementById('btn-new').addEventListener('click', ()=>{
+  S = blank(); isExample = false; showMissing = false; renderAll();
+  window.scrollTo({top:0});
+  document.getElementById('f-code').focus();
+});
+document.getElementById('btn-view').addEventListener('click', ()=>{
+  if(answered()<TOTAL){
+    showMissing = true; renderForm();
+    const first = document.querySelector('.q.missing');
+    if(first){ first.scrollIntoView({block:'center'}); return; }
+  }
+  document.getElementById('results').scrollIntoView({block:'start'});
+});
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click', ()=>{
+  lang = b.dataset.l;
+  try{ localStorage.setItem('nvtp-lang', lang); }catch(e){}
+  renderAll(); drawGabor();
+}));
+
+function drawGabor(){
+  const c = document.getElementById('gabor'), x = c.getContext('2d');
+  const cs = getComputedStyle(document.documentElement);
+  const hex = s => { s=s.trim().replace('#',''); return [0,2,4].map(i=>parseInt(s.slice(i,i+2),16)); };
+  let bg, fg;
+  try{ bg = hex(cs.getPropertyValue('--surface')); fg = hex(cs.getPropertyValue('--ink')); }catch(e){ bg=[255,255,255]; fg=[21,32,46]; }
+  const W = c.width, img = x.createImageData(W,W), sig = W/6, f = 4.5/W, th = Math.PI/4;
+  for(let j=0;j<W;j++) for(let i=0;i<W;i++){
+    const dx=i-W/2, dy=j-W/2;
+    const xr = dx*Math.cos(th)+dy*Math.sin(th);
+    const g = Math.exp(-(dx*dx+dy*dy)/(2*sig*sig)) * Math.cos(2*Math.PI*f*xr);
+    const m = 0.5 + 0.45*g, p = (j*W+i)*4;
+    for(let k=0;k<3;k++) img.data[p+k] = Math.round(bg[k] + (fg[k]-bg[k])*m);
+    img.data[p+3]=255;
+  }
+  x.putImageData(img,0,0);
+}
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawGabor); }catch(e){}
+new MutationObserver(drawGabor).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+renderAll(); drawGabor();
+</script>
+
+</body></html>

@@ -160,16 +160,12 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
 </div>
 
 <script>
-const SYM = ['A1','A2','A3','C1','C2','C3','E1','E2','E3'];
-const IMP = ['I1','I2'];
+const SYM = ['A1','C1','L1'];
 const DEV = ['phone','tablet','laptop','desktop','watch','paper'];
 const DIST = {phone:'35–40', tablet:'40', laptop:'50', desktop:'60', watch:'30–35', paper:'40'};
 const HOURS = ['lt2','2-4','4-6','gt6'];
 const CORR = ['none','readers','prog','cl'];
-const AVAIL = ['10x3','15x5','20x7','no'];
-const AVAIL_MIN = {'10x3':10,'15x5':15,'20x7':20};
-const AVAIL_WK = {'10x3':3,'15x5':5,'20x7':7};
-const TOTAL = SYM.length + DEV.length + IMP.length + 3;
+const TOTAL = SYM.length + DEV.length + 2;
 
 const T = {
  he:{
@@ -180,30 +176,20 @@ const T = {
   secA:'תסמינים בקריאה מקרוב', leadA:'בחודש האחרון, באיזו תדירות חווית כל אחד מהבאים?',
   scale:['אף פעם','לעיתים רחוקות','לפעמים','לעיתים קרובות','תמיד'],
   items:{
-   A1:'אותיות קטנות נראות מטושטשות',
-   A2:'אני מרחיק/ה את הטקסט כדי לקרוא אותו',
-   A3:'אני מגדיל/ה את הטקסט (זום או גופן גדול) כדי לקרוא בנוחות',
-   C1:'קשה לי לקרוא הדפסה דהויה או בניגודיות נמוכה',
-   C2:'אני צריך/ה יותר אור כדי לקרוא (במיוחד בתאורה עמומה)',
-   C3:'סנוור או השתקפויות מקשים עליי לקרוא (נייר מבריק, מסך בהיר)',
-   E1:'העיניים שלי מתעייפות או מתאמצות בקריאה מקרוב',
-   E2:'הטקסט מיטשטש ככל שאני קורא/ת יותר זמן',
-   E3:'יש לי כאב ראש אחרי עבודה מקרוב',
-   I1:'אני נמנע/ת מקריאה או מקצר/ת אותה בגלל הראייה',
-   I2:'הראייה לקרוב מגבילה אותי בפעילות היומיומית'
+   A1:'טקסט קטן נראה לי מטושטש או לא חד',
+   C1:'קשה לי לקרוא טקסט דהוי או בניגודיות נמוכה (למשל אפור על רקע לבן)',
+   L1:'קשה לי לקרוא בתאורה חלשה (למשל במסעדה או בערב)'
   },
   secB:'מכשירים', leadB:'כמה קשה לך לראות בבירור בכל מכשיר?',
   legendB:'0 = לא קשה בכלל · 4 = קשה מאוד · — = לא משתמש/ת',
   dev:{phone:'טלפון חכם',tablet:'טאבלט',laptop:'מחשב נייד',desktop:'מחשב שולחני',watch:'שעון חכם',paper:'נייר (ספרים, תוויות)'},
   hoursQ:'כמה שעות ביום את/ה מול מסכים?', hours:['פחות מ־2','2–4','4–6','יותר מ־6'],
-  secC:'השפעה על היום־יום', leadC:'בחודש האחרון, באיזו תדירות?',
   secD:'פרטים לתכנון האימון',
   corrQ:'במה את/ה משתמש/ת כיום לקריאה?', corr:['שום דבר','משקפי קריאה','משקפיים מולטיפוקליים או ביפוקליים','עדשות מגע'],
-  availQ:'כמה זמן תוכל/י להקדיש לאימון ראייה קצר על מסך?', avail:['10 דק׳, 3 פעמים בשבוע','15 דק׳, 5 פעמים בשבוע','20 דק׳ או יותר, כל יום','לא מעוניין/ת'],
   prog:(n,t)=>`${n} מתוך ${t} שאלות נענו`, view:'לפרופיל',
   rTitle:'פרופיל הנבדק', incomplete:n=>`חסרות ${n} תשובות. השאלות שלא נענו מסומנות באדום.`,
   nvsi:'מדד תסמינים (NVSI)', bands:['מינימלי','קל','בינוני','חמור'],
-  dom:{A:'חדות',C:'ניגודיות',E:'סיבולת',I:'השפעה תפקודית'},
+  dom:{A:'חדות',C:'ניגודיות',L:'תאורה חלשה'},
   domH:'ציונים לפי תחום', devH:'קושי לפי מכשיר', notUsed:'לא בשימוש',
   planH:'המלצת אימון',
   rows:{emph:'דגש עיקרי',split:'חלוקת בלוקים',gabor:'מיקוד Gabor',device:'מכשיר ומרחק אימון',session:'משך מפגש',freq:'תדירות',weekly:'מינון שבועי',corr:'תיקון אופטי באימון',prio:'עדיפות לשיבוץ'},
@@ -214,12 +200,10 @@ const T = {
   paperDev:'טאבלט, בערך 40 ס״מ (הקרוב ביותר לקריאה מנייר)',
   noDev:'אין מכשיר בעייתי: טלפון חכם, בערך 40 ס״מ',
   sess:m=>`${m} דקות`, sessBreak:' עם הפסקה קצרה באמצע', weeklyFmt:m=>`${m} דקות בשבוע`,
-  flagAvail:(m,w,am,aw)=>`הנבדק ציין זמינות של ${am} דק׳ × ${aw} בשבוע, פחות מהמינון המומלץ (${m} דק׳, ${w===7?'כל יום':w+' פעמים בשבוע'}). יש לשוחח איתו על ההתמדה לפני השיבוץ.`,
   freq:n=>`${n} פעמים בשבוע`, daily:'כל יום', none:'—',
   corrTrain:['תיקון לרחוק בלבד (אם קיים). ללא תיקון לקרוב.','תיקון לרחוק בלבד, ללא משקפי הקריאה.','תיקון לרחוק בלבד. יש להוריד את המולטיפוקלים/ביפוקלים; נדרשים משקפי רחוק חד־מוקדיים או עדשות מגע לרחוק.','תיקון לרחוק בלבד. אם העדשות מולטיפוקליות, יש לעבור לעדשות לרחוק בלבד.'],
   prio:{high:'גבוהה',med:'בינונית',low:'נמוכה'},
   flagAge:'גיל מתחת ל־40: מחוץ לאוכלוסיית היעד של המחקר.',
-  flagNo:'הנבדק לא מעוניין באימון. ההמלצה מוצגת לצורך תיעוד בלבד.',
   flagLow:'מעט תסמינים: מתאים כנבדק ביקורת או בעדיפות נמוכה.',
   flagH:'הערות',
   summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emph==='balanced'?'אימון מאוזן':'דגש על '+r.emphL} (${r.sA}/${r.sC}), אימון על ${r.devShort}, ${r.wk===7?'כל יום':`${r.wk} פעמים בשבוע`} × ${r.min} דק׳.`,
@@ -227,12 +211,12 @@ const T = {
   method:'איך מחושב',
   methodItems:[
    'כל תשובה מקבלת 0–4 (אף פעם = 0, תמיד = 4).',
-   'ציון תחום = סכום 3 השאלות שלו ÷ 12 × 100. השפעה = 2 שאלות ÷ 8 × 100.',
-   'NVSI = סכום 9 שאלות התסמינים ÷ 36 × 100. רמות: 0–24 מינימלי, 25–49 קל, 50–74 בינוני, 75–100 חמור.',
-   'דגש: הפרש חדות פחות ניגודיות של 15 נקודות ומעלה קובע דגש; אחרת מאוזן. חלוקת הבלוקים יחסית לשני הציונים, בטווח 30–70%, מעוגלת ל־10.',
-   'תדירות לפי חומרה (הגבוה מבין NVSI והשפעה): 75 ומעלה = כל יום, 50–74 = 5 פעמים בשבוע, 25–49 = 4 פעמים, מתחת ל־25 = 3 פעמים.',
-   'משך מפגש לפי סיבולת: 50 ומעלה = 12 דק׳ עם הפסקה, 25–49 = 15 דק׳, מתחת ל־25 = 20 דק׳. הזמינות שהנבדק ציין לא מורידה את המינון; אם היא נמוכה ממנו מופיעה הערה.',
-   'מכשיר: המכשיר עם ציון הקושי הגבוה ביותר. עדיפות: גבוהה אם NVSI או השפעה 50 ומעלה; נמוכה אם שניהם מתחת ל־25.'
+   'ציון תחום (חדות, ניגודיות, תאורה חלשה) = התשובה לשאלה שלו ÷ 4 × 100.',
+   'NVSI = סכום 3 שאלות התסמינים ÷ 12 × 100. רמות: 0–24 מינימלי, 25–49 קל, 50–74 בינוני, 75–100 חמור.',
+   'דגש: ציון הניגודיות לצורך הדגש הוא הגבוה מבין ניגודיות ותאורה חלשה. הפרש חדות פחות ניגודיות של 15 נקודות ומעלה קובע דגש; אחרת מאוזן. חלוקת הבלוקים יחסית לשני הציונים, בטווח 30–70%, מעוגלת ל־10.',
+   'תדירות לפי NVSI: 75 ומעלה = כל יום, 50–74 = 5 פעמים בשבוע, 25–49 = 4 פעמים, מתחת ל־25 = 3 פעמים.',
+   'משך מפגש: 15 דקות.',
+   'מכשיר: המכשיר עם ציון הקושי הגבוה ביותר. עדיפות: גבוהה אם NVSI 50 ומעלה; נמוכה אם מתחת ל־25.'
   ],
   note:'ספי החומרה וכללי ההמלצה הם טיוטה למחקר ולא תוקפו. יש לאשר מול חדות הראייה ורגישות הניגודיות ב־40 ס״מ מהבדיקה האופטומטרית.'
  },
@@ -244,30 +228,20 @@ const T = {
   secA:'Symptoms when reading up close', leadA:'In the last month, how often have you had each of the following?',
   scale:['Never','Rarely','Sometimes','Often','Always'],
   items:{
-   A1:'Small print looks blurry',
-   A2:'I hold text farther away to read it',
-   A3:'I enlarge text (zoom or a bigger font) to read comfortably',
-   C1:'Faded or low-contrast print is hard to read',
-   C2:'I need more light to read (especially in dim light)',
-   C3:'Glare or reflections make text hard to read (glossy paper, bright screens)',
-   E1:'My eyes get tired or strained when reading up close',
-   E2:'Text gets blurrier the longer I read',
-   E3:'I get headaches after close work',
-   I1:'I avoid or cut short reading because of my vision',
-   I2:'My near vision limits my daily activities'
+   A1:'Small text looks blurry or not sharp',
+   C1:'Faded or low-contrast text is hard to read (e.g. grey on white)',
+   L1:'Reading in low light is hard (e.g. in a restaurant or in the evening)'
   },
   secB:'Devices', leadB:'How hard is it to see clearly on each device?',
   legendB:'0 = not hard at all · 4 = very hard · — = I don’t use it',
   dev:{phone:'Smartphone',tablet:'Tablet',laptop:'Laptop',desktop:'Desktop computer',watch:'Smartwatch',paper:'Paper (books, labels)'},
   hoursQ:'How many hours a day do you spend on screens?', hours:['Less than 2','2–4','4–6','More than 6'],
-  secC:'Effect on daily life', leadC:'In the last month, how often?',
   secD:'Training details',
   corrQ:'What do you use for reading now?', corr:['Nothing','Reading glasses','Progressive or bifocal glasses','Contact lenses'],
-  availQ:'How much time could you give to a short eye-training exercise on a screen?', avail:['10 min, 3 times a week','15 min, 5 times a week','20 min or more, daily','Not interested'],
   prog:(n,t)=>`${n} of ${t} questions answered`, view:'View profile',
   rTitle:'Participant profile', incomplete:n=>`${n} answers missing. Unanswered questions are marked in red.`,
   nvsi:'Symptom index (NVSI)', bands:['Minimal','Mild','Moderate','Severe'],
-  dom:{A:'Acuity',C:'Contrast',E:'Endurance',I:'Daily impact'},
+  dom:{A:'Visual clarity',C:'Contrast',L:'Low light'},
   domH:'Domain scores', devH:'Difficulty by device', notUsed:'Not used',
   planH:'Training recommendation',
   rows:{emph:'Main emphasis',split:'Block split',gabor:'Gabor focus',device:'Training device and distance',session:'Session length',freq:'Frequency',weekly:'Weekly dose',corr:'Correction during training',prio:'Enrollment priority'},
@@ -278,12 +252,10 @@ const T = {
   paperDev:'Tablet, about 40 cm (closest to reading on paper)',
   noDev:'No problem device: smartphone, about 40 cm',
   sess:m=>`${m} minutes`, sessBreak:' with a short break halfway', weeklyFmt:m=>`${m} minutes a week`,
-  flagAvail:(m,w,am,aw)=>`The participant offered ${am} min × ${aw} a week, less than the recommended dose (${m} min, ${w===7?'daily':w+' times a week'}). Discuss adherence before enrolling.`,
   freq:n=>`${n} times a week`, daily:'Daily', none:'—',
   corrTrain:['Distance correction only (if any). No near correction.','Distance correction only, without the reading glasses.','Distance correction only. Remove the progressives/bifocals; single-vision distance glasses or distance contact lenses are needed.','Distance correction only. If the lenses are multifocal, switch to distance-only lenses.'],
   prio:{high:'High',med:'Medium',low:'Low'},
   flagAge:'Under 40: outside the study’s target population.',
-  flagNo:'Participant is not interested in training. The recommendation is shown for the record only.',
   flagLow:'Few symptoms: suitable as a control or low-priority participant.',
   flagH:'Notes',
   summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emphL} emphasis (${r.sA}/${r.sC}), train on ${r.devShort}, ${r.wk===7?'daily':`${r.wk}×/week`} × ${r.min} min.`,
@@ -291,12 +263,12 @@ const T = {
   method:'How it is calculated',
   methodItems:[
    'Each answer scores 0–4 (Never = 0, Always = 4).',
-   'Domain score = sum of its 3 questions ÷ 12 × 100. Impact = 2 questions ÷ 8 × 100.',
-   'NVSI = sum of the 9 symptom questions ÷ 36 × 100. Bands: 0–24 minimal, 25–49 mild, 50–74 moderate, 75–100 severe.',
-   'Emphasis: acuity minus contrast of 15 points or more sets the emphasis; otherwise balanced. The block split follows the two scores, kept within 30–70% and rounded to 10.',
-   'Frequency follows severity (the higher of NVSI and impact): 75+ = daily, 50–74 = 5 times a week, 25–49 = 4 times, under 25 = 3 times.',
-   'Session length follows endurance: 50+ = 12 min with a break, 25–49 = 15 min, under 25 = 20 min. The participant\u2019s stated availability never lowers the dose; if it is lower, a note appears.',
-   'Device: the device with the highest difficulty. Priority: high if NVSI or impact is 50+; low if both are under 25.'
+   'Domain score (visual clarity, contrast, low light) = its one answer ÷ 4 × 100.',
+   'NVSI = sum of the 3 symptom questions ÷ 12 × 100. Bands: 0–24 minimal, 25–49 mild, 50–74 moderate, 75–100 severe.',
+   'Emphasis: the contrast side uses the higher of contrast and low light. Clarity minus contrast of 15 points or more sets the emphasis; otherwise balanced. The block split follows the two scores, kept within 30–70% and rounded to 10.',
+   'Frequency follows NVSI: 75+ = daily, 50–74 = 5 times a week, 25–49 = 4 times, under 25 = 3 times.',
+   'Session length: 15 minutes.',
+   'Device: the device with the highest difficulty. Priority: high if NVSI is 50+; low if under 25.'
   ],
   note:'Severity cutoffs and recommendation rules are a study draft and have not been validated. Confirm against near acuity and contrast sensitivity at 40 cm from the optometric exam.'
  }
@@ -304,11 +276,11 @@ const T = {
 
 const EXAMPLE = {
   code:'EX-01', age:'52', date:new Date().toISOString().slice(0,10),
-  ans:{A1:3,A2:3,A3:2,C1:1,C2:2,C3:1,E1:2,E2:2,E3:1,I1:2,I2:1},
+  ans:{A1:3,C1:1,L1:2},
   dev:{phone:3,tablet:2,laptop:1,desktop:1,watch:'na',paper:2},
-  hours:'4-6', corr:'readers', avail:'15x5'
+  hours:'4-6', corr:'readers'
 };
-function blank(){ return {code:'',age:'',date:new Date().toISOString().slice(0,10),ans:{},dev:{},hours:null,corr:null,avail:null}; }
+function blank(){ return {code:'',age:'',date:new Date().toISOString().slice(0,10),ans:{},dev:{},hours:null,corr:null}; }
 
 let lang = 'he';
 let S = JSON.parse(JSON.stringify(EXAMPLE));
@@ -363,21 +335,17 @@ function renderForm(){
   DEV.forEach(d=>{ h += devQ(d, ++n); });
   h += chipQ('hours', ++n, t.hoursQ, HOURS, t.hours);
   h += `</div>`;
-  h += `<div class="sheet"><div class="sheet-h"><span class="tag">C</span><h2>${t.secC}</h2></div><p class="lead">${t.leadC}</p>`;
-  IMP.forEach(id=>{ h += scaleQ(id, ++n, t.items[id]); });
-  h += `</div>`;
-  h += `<div class="sheet"><div class="sheet-h"><span class="tag">D</span><h2>${t.secD}</h2></div>`;
+  h += `<div class="sheet"><div class="sheet-h"><span class="tag">C</span><h2>${t.secD}</h2></div>`;
   h += chipQ('corr', ++n, t.corrQ, CORR, t.corr);
-  h += chipQ('avail', ++n, t.availQ, AVAIL, t.avail);
   h += `</div>`;
   document.getElementById('form').innerHTML = h;
 }
 
 function answered(){
   let c = 0;
-  SYM.concat(IMP).forEach(id=>{ if(S.ans[id]!==undefined) c++; });
+  SYM.forEach(id=>{ if(S.ans[id]!==undefined) c++; });
   DEV.forEach(d=>{ if(S.dev[d]!==undefined) c++; });
-  ['hours','corr','avail'].forEach(k=>{ if(S[k]) c++; });
+  ['hours','corr'].forEach(k=>{ if(S[k]) c++; });
   return c;
 }
 const sum = ids => ids.reduce((a,id)=>a+S.ans[id],0);
@@ -387,11 +355,12 @@ const BAND_COL = ['var(--ok)','var(--accent)','var(--warn)','var(--crit)'];
 
 function compute(){
   const t = T[lang];
-  const A = pct(sum(['A1','A2','A3']),12), C = pct(sum(['C1','C2','C3']),12), E = pct(sum(['E1','E2','E3']),12);
-  const I = pct(sum(IMP),8), nvsi = pct(sum(SYM),36);
-  const diff = A - C;
+  const A = pct(S.ans.A1,4), C = pct(S.ans.C1,4), L = pct(S.ans.L1,4);
+  const CL = Math.max(C, L);
+  const nvsi = pct(sum(SYM),12);
+  const diff = A - CL;
   const emph = diff>=15?'acuity':diff<=-15?'contrast':'balanced';
-  let sA = (A+C)===0 ? 50 : Math.round(A/(A+C)*10)*10;
+  let sA = (A+CL)===0 ? 50 : Math.round(A/(A+CL)*10)*10;
   sA = Math.min(70, Math.max(30, sA));
   if(emph==='balanced') sA = Math.min(60, Math.max(40, sA));
   const sC = 100 - sA;
@@ -405,20 +374,16 @@ function compute(){
     devText = d==='paper' ? t.paperDev : t.devFmt(top.filter(x=>x!=='paper').map(x=>t.dev[x]).join(' / ') || t.dev[d], DIST[d]);
     devShort = d==='paper' ? t.dev.tablet : t.dev[d];
   }
-  const cap = E>=50?12:E>=25?15:20;
-  const notInt = S.avail==='no';
-  const need = Math.max(nvsi, I);
+  const need = nvsi;
   const wk = need>=75?7:need>=50?5:need>=25?4:3;
-  const min = cap;
+  const min = 15;
   const weekly = min*wk;
-  const prio = (nvsi>=50||I>=50)?'high':(nvsi<25&&I<25)?'low':'med';
+  const prio = nvsi>=50?'high':nvsi<25?'low':'med';
   const flags = [];
   const age = parseInt(S.age,10);
   if(!isNaN(age) && age<40) flags.push(t.flagAge);
-  if(notInt) flags.push(t.flagNo);
-  else if(AVAIL_WK[S.avail]<wk || AVAIL_MIN[S.avail]<min) flags.push(t.flagAvail(min,wk,AVAIL_MIN[S.avail],AVAIL_WK[S.avail]));
   if(nvsi<25) flags.push(t.flagLow);
-  return {A,C,E,I,nvsi,band:t.bands[bandIdx(nvsi)],bi:bandIdx(nvsi),emph,emphL:t.emph[emph],sA,sC,devText,devShort,devCode,top,min,wk,weekly,need,cap,prio,flags,maxV};
+  return {A,C,L,nvsi,band:t.bands[bandIdx(nvsi)],bi:bandIdx(nvsi),emph,emphL:t.emph[emph],sA,sC,devText,devShort,devCode,top,min,wk,weekly,need,prio,flags,maxV};
 }
 
 function barRow(label, v, extra, cls){
@@ -441,9 +406,9 @@ function renderResults(){
   h += `<div class="r-head"><div class="score"><b>${r.nvsi}</b><span>/ 100</span></div><div class="r-meta"><span class="who"><span class="num">${esc(who)}</span></span><h2>${t.rTitle}</h2><span class="pill">${t.nvsi}: ${r.band}</span><p class="sum">${esc(t.summary(r))}</p></div></div>`;
   h += `<div class="r-body">`;
   h += `<div class="r-sec"><h3>${t.domH}</h3>`;
-  const domMax = Math.max(r.A,r.C,r.E);
-  [['A',r.A,sum(['A1','A2','A3']),12],['C',r.C,sum(['C1','C2','C3']),12],['E',r.E,sum(['E1','E2','E3']),12],['I',r.I,sum(IMP),8]].forEach(([k,v])=>{
-    h += barRow(t.dom[k], v, `${v}`, (k!=='I' && v===domMax && v>0)?'top':'');
+  const domMax = Math.max(r.A,r.C,r.L);
+  [['A',r.A],['C',r.C],['L',r.L]].forEach(([k,v])=>{
+    h += barRow(t.dom[k], v, `${v}`, (v===domMax && v>0)?'top':'');
   });
   h += axis() + `</div>`;
   h += `<div class="r-sec"><h3>${t.devH}</h3>`;
@@ -459,8 +424,8 @@ function renderResults(){
     <tr><th>${t.rows.split}</th><td>${esc(t.split(r.sA,r.sC))}</td></tr>
     <tr><th>${t.rows.gabor}</th><td>${esc(t.gabor[r.emph])}</td></tr>
     <tr><th>${t.rows.device}</th><td>${esc(r.devText)}</td></tr>
-    <tr><th>${t.rows.freq}</th><td>${r.wk===7?t.daily:esc(t.freq(r.wk))} <span class="num">(${r.need})</span></td></tr>
-    <tr><th>${t.rows.session}</th><td>${esc(t.sess(r.min)+(r.E>=50?t.sessBreak:''))}</td></tr>
+    <tr><th>${t.rows.freq}</th><td>${r.wk===7?t.daily:esc(t.freq(r.wk))}</td></tr>
+    <tr><th>${t.rows.session}</th><td>${esc(t.sess(r.min))}</td></tr>
     <tr><th>${t.rows.weekly}</th><td>${esc(t.weeklyFmt(r.weekly))}</td></tr>
     <tr><th>${t.rows.corr}</th><td>${esc(t.corrTrain[CORR.indexOf(S.corr)])}</td></tr>
     <tr><th>${t.rows.prio}</th><td>${t.prio[r.prio]}</td></tr>
@@ -481,11 +446,11 @@ function summaryText(r){
   const lines = [
     `${t.rTitle}: ${S.code||'—'} · ${t.age} ${S.age||'—'} · ${S.date}`,
     `${t.nvsi}: ${r.nvsi}/100 (${r.band})`,
-    `${t.dom.A} ${r.A} · ${t.dom.C} ${r.C} · ${t.dom.E} ${r.E} · ${t.dom.I} ${r.I}`,
+    `${t.dom.A} ${r.A} · ${t.dom.C} ${r.C} · ${t.dom.L} ${r.L}`,
     `${t.rows.emph}: ${r.emphL} — ${t.split(r.sA,r.sC)}`,
     `${t.rows.gabor}: ${t.gabor[r.emph]}`,
     `${t.rows.device}: ${r.devText}`,
-    `${t.rows.freq}: ${r.wk===7?t.daily:t.freq(r.wk)} · ${t.rows.session}: ${t.sess(r.min)+(r.E>=50?t.sessBreak:'')} · ${t.rows.weekly}: ${t.weeklyFmt(r.weekly)}`,
+    `${t.rows.freq}: ${r.wk===7?t.daily:t.freq(r.wk)} · ${t.rows.session}: ${t.sess(r.min)} · ${t.rows.weekly}: ${t.weeklyFmt(r.weekly)}`,
     `${t.rows.corr}: ${t.corrTrain[CORR.indexOf(S.corr)]}`,
     `${t.rows.prio}: ${t.prio[r.prio]}`
   ];
@@ -493,9 +458,9 @@ function summaryText(r){
   return lines.join('\n');
 }
 function csvText(r){
-  const head = ['code','age','date','nvsi','band','acuity','contrast','endurance','impact','emphasis','split_acuity','split_contrast','train_device','session_min','sessions_week','weekly_min','priority',...SYM,...IMP,...DEV.map(d=>'dev_'+d),'screen_hours','correction','availability'];
+  const head = ['code','age','date','nvsi','band','acuity','contrast','low_light','emphasis','split_acuity','split_contrast','train_device','session_min','sessions_week','weekly_min','priority',...SYM,...DEV.map(d=>'dev_'+d),'screen_hours','correction'];
   const band = T.en.bands[r.bi].toLowerCase();
-  const vals = [S.code,S.age,S.date,r.nvsi,band,r.A,r.C,r.E,r.I,r.emph,r.sA,r.sC,r.devCode==='paper'?'tablet':r.devCode,r.min,r.wk,r.weekly,r.prio,...SYM.map(i=>S.ans[i]),...IMP.map(i=>S.ans[i]),...DEV.map(d=>S.dev[d]),S.hours,S.corr,S.avail];
+  const vals = [S.code,S.age,S.date,r.nvsi,band,r.A,r.C,r.L,r.emph,r.sA,r.sC,r.devCode==='paper'?'tablet':r.devCode,r.min,r.wk,r.weekly,r.prio,...SYM.map(i=>S.ans[i]),...DEV.map(d=>S.dev[d]),S.hours,S.corr];
   const q = v => { v = String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; };
   return head.join(',') + '\n' + vals.map(q).join(',');
 }

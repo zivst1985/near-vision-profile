@@ -128,6 +128,44 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
   .bar-row,.axis{grid-template-columns:minmax(0,7em) 1fr 3.6em}
 }
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .35s ease}}
+/* v4: multi-select picture options, birth date + age, distance Rx table */
+.dob-row{display:flex;gap:8px;align-items:center}
+.dob-row input{flex:1}
+.age-out{font-family:var(--f-mono);font-size:.9rem;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:6px 10px;white-space:nowrap;min-width:5.5em;text-align:center}
+.rx{width:100%;border-collapse:collapse;font-size:.9rem}
+.rx th{font-weight:500;color:var(--muted);font-size:.8rem;padding:4px;text-align:center}
+.rx th.eye{text-align:start;white-space:nowrap;padding-inline-end:10px;color:var(--ink);font-family:var(--f-mono)}
+.eye-l{font-family:var(--f-body);color:var(--muted);font-weight:400}
+.rx td{padding:4px}
+.rx input{width:100%;min-width:0;font:inherit;font-family:var(--f-mono);font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;direction:ltr}
+.rx input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.q-sub{font-size:.82rem;color:var(--muted);padding-inline-start:calc(2.2em + 10px)}
+.order{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-family:var(--f-mono);padding-inline:2px}
+.picks{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.picks input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.picks label{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px 4px 8px;font-size:.78rem;line-height:1.25;cursor:pointer;background:var(--surface);color:var(--ink);min-height:44px;min-width:0;overflow-wrap:anywhere;position:relative}
+.picks label svg{width:44px;height:44px;flex:none;color:var(--accent)}
+.picks label .lvl{display:flex;gap:2px;margin-top:auto}
+.picks label .lvl i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.picks label .lvl i.on{background:var(--warn)}
+.picks label:hover{border-color:var(--accent)}
+.picks input:checked+label{background:var(--accent);border-color:var(--accent);color:var(--sel-fg)}
+.picks input:checked+label svg{color:var(--sel-fg)}
+.picks input:checked+label .lvl i.on{background:var(--sel-fg)}
+.picks input:checked+label::after{content:"✓";position:absolute;top:4px;inset-inline-end:6px;font-size:.8rem;font-weight:700}
+.picks input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+.picks label.none{grid-column:1/-1;flex-direction:row;justify-content:center;min-height:40px;padding:8px}
+.chosen{display:flex;flex-wrap:wrap;gap:6px}
+.chosen span{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.82rem;background:var(--bg)}
+.chosen span.top{border-color:var(--warn)}
+.chosen-h{font-size:.82rem;color:var(--muted);margin-top:4px}
+@media (max-width:620px){
+  .picks{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .rx input{padding:7px 2px;font-size:.82rem}
+  .rx th.eye{padding-inline-end:4px}
+  .eye-l{display:none}
+  .rx td{padding:3px 2px}
+}
 </style>
 
 <div class="wrap">
@@ -160,63 +198,75 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
 </div>
 
 <script>
-const SYM = ['A1','C1','L1'];
-const DEV = ['phone','tablet','laptop','desktop','watch','paper'];
-const DIST = {phone:'35–40', tablet:'40', laptop:'50', desktop:'60', watch:'30–35', paper:'40'};
-const HOURS = ['lt2','2-4','4-6','gt6'];
-const CORR = ['none','readers','prog','cl'];
-const TOTAL = SYM.length + DEV.length + 2;
+// Options are listed from easiest to hardest to see; rank = severity if the person struggles with it (5 = struggles even with the easiest).
+const NEAR = ['laptop','tablet','paper','phone','watch'];
+const NEAR_RANK = {laptop:5, tablet:4, paper:3, phone:2, watch:1};
+const DESK = ['head','web','doc','sheet','ui'];
+const DESK_RANK = {head:5, web:4, doc:3, sheet:2, ui:1};
+const TOTAL = 3;
+
+const ICON = {
+ laptop:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="10" y="11" width="28" height="19" rx="2"/><path d="M5 35h38l-3 4H8z"/><path d="M15 17h18M15 21h14M15 25h16" stroke-width="1.5"/></svg>',
+ tablet:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="11" y="6" width="26" height="36" rx="3"/><path d="M16 13h16M16 17h12M16 21h15M16 25h11" stroke-width="1.5"/><circle cx="24" cy="38" r="1.2" fill="currentColor"/></svg>',
+ paper:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M24 12c-5-3-12-3-18-1v26c6-2 13-2 18 1 5-3 12-3 18-1V11c-6-2-13-2-18 1z"/><path d="M24 12v26"/><path d="M10 17h10M10 21h10M10 25h9M28 17h10M28 21h10M28 25h9" stroke-width="1.2"/></svg>',
+ phone:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="15" y="5" width="18" height="38" rx="3"/><path d="M19 12h10M19 15h8M19 18h10M19 21h7M19 24h9" stroke-width="1.1"/><path d="M22 39h4"/></svg>',
+ watch:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M18 14l1-8h10l1 8M18 34l1 8h10l1-8"/><rect x="14" y="14" width="20" height="20" rx="5"/><path d="M19 21h10M19 24h7M19 27h9" stroke-width="1"/></svg>',
+ head:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="7" width="38" height="27" rx="2"/><path d="M20 41h8M24 34v7"/><path d="M11 16h22" stroke-width="4"/><path d="M11 25h16" stroke-width="4"/></svg>',
+ web:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="7" width="38" height="27" rx="2"/><path d="M20 41h8M24 34v7"/><path d="M5 13h38" stroke-width="1.5"/><circle cx="9" cy="10" r=".8" fill="currentColor"/><circle cx="12" cy="10" r=".8" fill="currentColor"/><path d="M10 18h18" stroke-width="2.5"/><path d="M10 23h28M10 26h24M10 29h26" stroke-width="1.2"/></svg>',
+ doc:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="7" width="38" height="27" rx="2"/><path d="M20 41h8M24 34v7"/><path d="M14 11h20v20H14z" stroke-width="1.2"/><path d="M17 15h14M17 18h14M17 21h12M17 24h14M17 27h10" stroke-width=".9"/></svg>',
+ sheet:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="7" width="38" height="27" rx="2"/><path d="M20 41h8M24 34v7"/><path d="M9 12h30v18H9zM9 16.5h30M9 21h30M9 25.5h30M16 12v18M23 12v18M30 12v18" stroke-width=".9"/></svg>',
+ ui:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="7" width="38" height="27" rx="2"/><path d="M20 41h8M24 34v7"/><path d="M5 13h38" stroke-width="1"/><path d="M8 10h3M13 10h3M18 10h3M23 10h3" stroke-width=".8"/><rect x="9" y="16" width="11" height="13" stroke-width=".8"/><path d="M11 19h7M11 21.5h6M11 24h7M11 26.5h5" stroke-width=".6"/><path d="M24 17h15M24 20h13M24 23h15" stroke-width="1"/></svg>'
+};
 
 const T = {
  he:{
   title:'פרופיל אימון ראייה לקרוב',
   sub:'שאלון קצר לנבדקים בני 40+. התשובות מחושבות לציון כמותי ולהמלצה איפה ואיך לתת דגש באימון ה־Gabor.',
   example:'מוצגות תשובות לדוגמה של נבדק בדוי (EX-01). לחצו על "נבדק חדש" כדי להתחיל.',
-  newP:'נבדק חדש', code:'קוד נבדק', age:'גיל', date:'תאריך',
-  secA:'תסמינים בקריאה מקרוב', leadA:'בחודש האחרון, באיזו תדירות חווית כל אחד מהבאים?',
+  newP:'נבדק חדש', code:'קוד נבדק', dob:'תאריך לידה', date:'תאריך בדיקה', age:'גיל', ageOut:a=>`גיל ${a}`,
+  rxH:'מרשם לרחוק ו־ADD', rxLead:'לפי הבדיקה האופטומטרית. אפשר להשאיר שדה ריק אם אין ערך.',
+  eye:{od:'ימין',os:'שמאל'}, rxCol:{sph:'Sph',cyl:'Cyl',ax:'Axis',add:'ADD'},
+  secA:'קושי בקריאה',
+  orderLbl:['קל לראות','קשה לראות'],
+  nearQ:'מרחק קריאה: במה את/ה מתקשה לקרוא?', deskQ:'מרחק מחשב שולחני: איזה טקסט קשה לך לקרוא על המסך?',
+  multi:'אפשר לבחור יותר מאפשרות אחת.',
+  near:{laptop:'מחשב נייד',tablet:'טאבלט',paper:'ספר / עיתון',phone:'סמארטפון',watch:'שעון חכם'},
+  desk:{head:'כותרות וטקסט גדול',web:'דפי אינטרנט בדפדפן',doc:'מסמכי Word ומיילים',sheet:'טבלאות Excel',ui:'תפריטים, סרגלי כלים וטקסט קטן'},
+  none:'אין לי קושי',
+  lowQ:'קשה לי לקרוא בתאורה חלשה (למשל במסעדה או בערב)', lowSub:'בחודש האחרון, באיזו תדירות?',
   scale:['אף פעם','לעיתים רחוקות','לפעמים','לעיתים קרובות','תמיד'],
-  items:{
-   A1:'טקסט קטן נראה לי מטושטש או לא חד',
-   C1:'קשה לי לקרוא טקסט דהוי או בניגודיות נמוכה (למשל אפור על רקע לבן)',
-   L1:'קשה לי לקרוא בתאורה חלשה (למשל במסעדה או בערב)'
-  },
-  secB:'מכשירים', leadB:'כמה קשה לך לראות בבירור בכל מכשיר?',
-  legendB:'0 = לא קשה בכלל · 4 = קשה מאוד · — = לא משתמש/ת',
-  dev:{phone:'טלפון חכם',tablet:'טאבלט',laptop:'מחשב נייד',desktop:'מחשב שולחני',watch:'שעון חכם',paper:'נייר (ספרים, תוויות)'},
-  hoursQ:'כמה שעות ביום את/ה מול מסכים?', hours:['פחות מ־2','2–4','4–6','יותר מ־6'],
-  secD:'פרטים לתכנון האימון',
-  corrQ:'במה את/ה משתמש/ת כיום לקריאה?', corr:['שום דבר','משקפי קריאה','משקפיים מולטיפוקליים או ביפוקליים','עדשות מגע'],
   prog:(n,t)=>`${n} מתוך ${t} שאלות נענו`, view:'לפרופיל',
   rTitle:'פרופיל הנבדק', incomplete:n=>`חסרות ${n} תשובות. השאלות שלא נענו מסומנות באדום.`,
   nvsi:'מדד תסמינים (NVSI)', bands:['מינימלי','קל','בינוני','חמור'],
-  dom:{A:'חדות',C:'ניגודיות',L:'תאורה חלשה'},
-  domH:'ציונים לפי תחום', devH:'קושי לפי מכשיר', notUsed:'לא בשימוש',
+  dom:{N:'מרחק קריאה',D:'מרחק מחשב',L:'תאורה חלשה'},
+  domH:'ציונים לפי תחום', selH:'מה קשה לקרוא', nearH:'מרחק קריאה', deskH:'מחשב שולחני', noneSel:'אין קושי',
+  rxRepH:'מרשם', rxNone:'לא הוזן',
   planH:'המלצת אימון',
   rows:{emph:'דגש עיקרי',split:'חלוקת בלוקים',gabor:'מיקוד Gabor',device:'מכשיר ומרחק אימון',session:'משך מפגש',freq:'תדירות',weekly:'מינון שבועי',corr:'תיקון אופטי באימון',prio:'עדיפות לשיבוץ'},
   emph:{acuity:'חדות',contrast:'ניגודיות',balanced:'מאוזן'},
   gabor:{acuity:'יותר בלוקים בתדרים מרחביים גבוהים (מטרות קטנות)',contrast:'יותר בלוקים בתדרים נמוכים־בינוניים, סמוך לסף הניגודיות',balanced:'חלוקה שווה בין תדרים גבוהים לעבודה סמוך לסף הניגודיות'},
   split:(a,c)=>`${a}% חדות · ${c}% ניגודיות`,
-  devFmt:(d,x)=>`${d}, בערך ${x} ס״מ`,
-  paperDev:'טאבלט, בערך 40 ס״מ (הקרוב ביותר לקריאה מנייר)',
-  noDev:'אין מכשיר בעייתי: טלפון חכם, בערך 40 ס״מ',
-  sess:m=>`${m} דקות`, sessBreak:' עם הפסקה קצרה באמצע', weeklyFmt:m=>`${m} דקות בשבוע`,
-  freq:n=>`${n} פעמים בשבוע`, daily:'כל יום', none:'—',
-  corrTrain:['תיקון לרחוק בלבד (אם קיים). ללא תיקון לקרוב.','תיקון לרחוק בלבד, ללא משקפי הקריאה.','תיקון לרחוק בלבד. יש להוריד את המולטיפוקלים/ביפוקלים; נדרשים משקפי רחוק חד־מוקדיים או עדשות מגע לרחוק.','תיקון לרחוק בלבד. אם העדשות מולטיפוקליות, יש לעבור לעדשות לרחוק בלבד.'],
+  dev:{laptop:'מחשב נייד, בערך 50 ס״מ',tablet:'טאבלט, בערך 40 ס״מ',paper:'טאבלט, בערך 40 ס״מ (הקרוב ביותר לקריאה מנייר)',phone:'סמארטפון, בערך 35–40 ס״מ',watch:'סמארטפון, בערך 35 ס״מ (מסך השעון קטן מדי לאימון)',desktop:'מחשב שולחני, בערך 60 ס״מ',none:'אין מכשיר בעייתי: סמארטפון, בערך 40 ס״מ'},
+  devShort:{laptop:'מחשב נייד',tablet:'טאבלט',paper:'טאבלט',phone:'סמארטפון',watch:'סמארטפון',desktop:'מחשב שולחני',none:'סמארטפון'},
+  sess:m=>`${m} דקות`, weeklyFmt:m=>`${m} דקות בשבוע`,
+  freq:n=>`${n} פעמים בשבוע`, daily:'כל יום',
+  corrTrain:rx=>`תיקון לרחוק בלבד${rx?` (${rx})`:''}. ללא ADD, משקפי קריאה או עדשות מולטיפוקליות.`,
   prio:{high:'גבוהה',med:'בינונית',low:'נמוכה'},
   flagAge:'גיל מתחת ל־40: מחוץ לאוכלוסיית היעד של המחקר.',
   flagLow:'מעט תסמינים: מתאים כנבדק ביקורת או בעדיפות נמוכה.',
+  flagRx:'לא הוזן מרשם לרחוק. יש להשלים לפני האימון.',
   flagH:'הערות',
   summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emph==='balanced'?'אימון מאוזן':'דגש על '+r.emphL} (${r.sA}/${r.sC}), אימון על ${r.devShort}, ${r.wk===7?'כל יום':`${r.wk} פעמים בשבוע`} × ${r.min} דק׳.`,
   copySum:'העתק סיכום', copyCsv:'העתק שורת CSV', copied:'הועתק', copyFail:'ההעתקה נחסמה. הטקסט מסומן למטה, העתיקו ידנית.',
   method:'איך מחושב',
   methodItems:[
-   'כל תשובה מקבלת 0–4 (אף פעם = 0, תמיד = 4).',
-   'ציון תחום (חדות, ניגודיות, תאורה חלשה) = התשובה לשאלה שלו ÷ 4 × 100.',
-   'NVSI = סכום 3 שאלות התסמינים ÷ 12 × 100. רמות: 0–24 מינימלי, 25–49 קל, 50–74 בינוני, 75–100 חמור.',
-   'דגש: ציון הניגודיות לצורך הדגש הוא הגבוה מבין ניגודיות ותאורה חלשה. הפרש חדות פחות ניגודיות של 15 נקודות ומעלה קובע דגש; אחרת מאוזן. חלוקת הבלוקים יחסית לשני הציונים, בטווח 30–70%, מעוגלת ל־10.',
-   'תדירות לפי NVSI: 75 ומעלה = כל יום, 50–74 = 5 פעמים בשבוע, 25–49 = 4 פעמים, מתחת ל־25 = 3 פעמים.',
-   'משך מפגש: 15 דקות.',
-   'מכשיר: המכשיר עם ציון הקושי הגבוה ביותר. עדיפות: גבוהה אם NVSI 50 ומעלה; נמוכה אם מתחת ל־25.'
+   'האפשרויות בשאלות 1 ו־2 מסודרות מהקל לקשה לראייה. ציון השאלה נקבע לפי האפשרות הקלה ביותר שסומנה: הקלה ביותר = 100, השנייה = 80, וכן הלאה עד הקשה ביותר = 20. "אין לי קושי" = 0.',
+   'תאורה חלשה: אף פעם = 0 עד תמיד = 100 (בקפיצות של 25).',
+   'NVSI = ממוצע שלושת הציונים. רמות: 0–24 מינימלי, 25–49 קל, 50–74 בינוני, 75–100 חמור.',
+   'דגש: צד החדות הוא הגבוה מבין מרחק קריאה ומרחק מחשב; צד הניגודיות הוא תאורה חלשה. הפרש של 15 נקודות ומעלה קובע דגש; אחרת מאוזן. חלוקת הבלוקים בטווח 30–70%, מעוגלת ל־10.',
+   'תדירות לפי NVSI: 75 ומעלה = כל יום, 50–74 = 5 פעמים בשבוע, 25–49 = 4 פעמים, מתחת ל־25 = 3 פעמים. משך מפגש: 15 דקות.',
+   'מכשיר: המכשיר הקל ביותר שסומן בשאלה 1 (המגביל ביותר תפקודית). אם לא סומן מכשיר ויש קושי במחשב, מחשב שולחני.',
+   'עדיפות: גבוהה אם NVSI 50 ומעלה; נמוכה אם מתחת ל־25.'
   ],
   note:'ספי החומרה וכללי ההמלצה הם טיוטה למחקר ולא תוקפו. יש לאשר מול חדות הראייה ורגישות הניגודיות ב־40 ס״מ מהבדיקה האופטומטרית.'
  },
@@ -224,63 +274,65 @@ const T = {
   title:'Near Vision Training Profile',
   sub:'A short questionnaire for participants aged 40+. Answers turn into a quantitative score and a recommendation for where to focus the Gabor training.',
   example:'Showing example answers for a made-up participant (EX-01). Press "New participant" to start.',
-  newP:'New participant', code:'Participant code', age:'Age', date:'Date',
-  secA:'Symptoms when reading up close', leadA:'In the last month, how often have you had each of the following?',
+  newP:'New participant', code:'Participant code', dob:'Date of birth', date:'Test date', age:'Age', ageOut:a=>`Age ${a}`,
+  rxH:'Distance prescription and ADD', rxLead:'From the optometric exam. Leave a field empty if there is no value.',
+  eye:{od:'Right',os:'Left'}, rxCol:{sph:'Sph',cyl:'Cyl',ax:'Axis',add:'ADD'},
+  secA:'Reading difficulty',
+  orderLbl:['Easy to see','Hard to see'],
+  nearQ:'Reading distance: what do you find hard to read?', deskQ:'Desktop computer distance: which text is hard to read on the screen?',
+  multi:'You can choose more than one.',
+  near:{laptop:'Laptop',tablet:'Tablet',paper:'Book / newspaper',phone:'Smartphone',watch:'Smartwatch'},
+  desk:{head:'Headings and large text',web:'Web pages in a browser',doc:'Word documents and email',sheet:'Excel spreadsheets',ui:'Menus, toolbars and small text'},
+  none:'No difficulty',
+  lowQ:'Reading in low light is hard (e.g. in a restaurant or in the evening)', lowSub:'In the last month, how often?',
   scale:['Never','Rarely','Sometimes','Often','Always'],
-  items:{
-   A1:'Small text looks blurry or not sharp',
-   C1:'Faded or low-contrast text is hard to read (e.g. grey on white)',
-   L1:'Reading in low light is hard (e.g. in a restaurant or in the evening)'
-  },
-  secB:'Devices', leadB:'How hard is it to see clearly on each device?',
-  legendB:'0 = not hard at all · 4 = very hard · — = I don’t use it',
-  dev:{phone:'Smartphone',tablet:'Tablet',laptop:'Laptop',desktop:'Desktop computer',watch:'Smartwatch',paper:'Paper (books, labels)'},
-  hoursQ:'How many hours a day do you spend on screens?', hours:['Less than 2','2–4','4–6','More than 6'],
-  secD:'Training details',
-  corrQ:'What do you use for reading now?', corr:['Nothing','Reading glasses','Progressive or bifocal glasses','Contact lenses'],
   prog:(n,t)=>`${n} of ${t} questions answered`, view:'View profile',
   rTitle:'Participant profile', incomplete:n=>`${n} answers missing. Unanswered questions are marked in red.`,
   nvsi:'Symptom index (NVSI)', bands:['Minimal','Mild','Moderate','Severe'],
-  dom:{A:'Visual clarity',C:'Contrast',L:'Low light'},
-  domH:'Domain scores', devH:'Difficulty by device', notUsed:'Not used',
+  dom:{N:'Reading distance',D:'Computer distance',L:'Low light'},
+  domH:'Domain scores', selH:'What is hard to read', nearH:'Reading distance', deskH:'Desktop computer', noneSel:'No difficulty',
+  rxRepH:'Prescription', rxNone:'Not entered',
   planH:'Training recommendation',
   rows:{emph:'Main emphasis',split:'Block split',gabor:'Gabor focus',device:'Training device and distance',session:'Session length',freq:'Frequency',weekly:'Weekly dose',corr:'Correction during training',prio:'Enrollment priority'},
   emph:{acuity:'Acuity',contrast:'Contrast',balanced:'Balanced'},
   gabor:{acuity:'More blocks at high spatial frequencies (small targets)',contrast:'More blocks at low to mid spatial frequencies, near the contrast threshold',balanced:'Even split between high spatial frequencies and near-threshold contrast work'},
   split:(a,c)=>`${a}% acuity · ${c}% contrast`,
-  devFmt:(d,x)=>`${d}, about ${x} cm`,
-  paperDev:'Tablet, about 40 cm (closest to reading on paper)',
-  noDev:'No problem device: smartphone, about 40 cm',
-  sess:m=>`${m} minutes`, sessBreak:' with a short break halfway', weeklyFmt:m=>`${m} minutes a week`,
-  freq:n=>`${n} times a week`, daily:'Daily', none:'—',
-  corrTrain:['Distance correction only (if any). No near correction.','Distance correction only, without the reading glasses.','Distance correction only. Remove the progressives/bifocals; single-vision distance glasses or distance contact lenses are needed.','Distance correction only. If the lenses are multifocal, switch to distance-only lenses.'],
+  dev:{laptop:'Laptop, about 50 cm',tablet:'Tablet, about 40 cm',paper:'Tablet, about 40 cm (closest to reading on paper)',phone:'Smartphone, about 35–40 cm',watch:'Smartphone, about 35 cm (a watch screen is too small for training)',desktop:'Desktop computer, about 60 cm',none:'No problem device: smartphone, about 40 cm'},
+  devShort:{laptop:'a laptop',tablet:'a tablet',paper:'a tablet',phone:'a smartphone',watch:'a smartphone',desktop:'a desktop computer',none:'a smartphone'},
+  sess:m=>`${m} minutes`, weeklyFmt:m=>`${m} minutes a week`,
+  freq:n=>`${n} times a week`, daily:'Daily',
+  corrTrain:rx=>`Distance correction only${rx?` (${rx})`:''}. No ADD, reading glasses or multifocal lenses.`,
   prio:{high:'High',med:'Medium',low:'Low'},
   flagAge:'Under 40: outside the study’s target population.',
   flagLow:'Few symptoms: suitable as a control or low-priority participant.',
+  flagRx:'No distance prescription entered. Complete it before training.',
   flagH:'Notes',
   summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emphL} emphasis (${r.sA}/${r.sC}), train on ${r.devShort}, ${r.wk===7?'daily':`${r.wk}×/week`} × ${r.min} min.`,
   copySum:'Copy summary', copyCsv:'Copy CSV row', copied:'Copied', copyFail:'Copying was blocked. The text is selected below; copy it by hand.',
   method:'How it is calculated',
   methodItems:[
-   'Each answer scores 0–4 (Never = 0, Always = 4).',
-   'Domain score (visual clarity, contrast, low light) = its one answer ÷ 4 × 100.',
-   'NVSI = sum of the 3 symptom questions ÷ 12 × 100. Bands: 0–24 minimal, 25–49 mild, 50–74 moderate, 75–100 severe.',
-   'Emphasis: the contrast side uses the higher of contrast and low light. Clarity minus contrast of 15 points or more sets the emphasis; otherwise balanced. The block split follows the two scores, kept within 30–70% and rounded to 10.',
-   'Frequency follows NVSI: 75+ = daily, 50–74 = 5 times a week, 25–49 = 4 times, under 25 = 3 times.',
-   'Session length: 15 minutes.',
-   'Device: the device with the highest difficulty. Priority: high if NVSI is 50+; low if under 25.'
+   'The options in questions 1 and 2 run from easiest to hardest to see. The score comes from the easiest option chosen: easiest = 100, second = 80, and so on down to hardest = 20. "No difficulty" = 0.',
+   'Low light: Never = 0 to Always = 100 (steps of 25).',
+   'NVSI = mean of the three scores. Bands: 0–24 minimal, 25–49 mild, 50–74 moderate, 75–100 severe.',
+   'Emphasis: the acuity side is the higher of reading distance and computer distance; the contrast side is low light. A gap of 15 points or more sets the emphasis; otherwise balanced. The block split stays within 30–70%, rounded to 10.',
+   'Frequency follows NVSI: 75+ = daily, 50–74 = 5 times a week, 25–49 = 4 times, under 25 = 3 times. Session length: 15 minutes.',
+   'Device: the easiest device chosen in question 1 (the most limiting in daily use). If no device is chosen but the computer is hard, a desktop computer.',
+   'Priority: high if NVSI is 50+; low if under 25.'
   ],
   note:'Severity cutoffs and recommendation rules are a study draft and have not been validated. Confirm against near acuity and contrast sensitivity at 40 cm from the optometric exam.'
  }
 };
 
+const today = () => new Date().toISOString().slice(0,10);
+const blankRx = () => ({od:{sph:'',cyl:'',ax:'',add:''}, os:{sph:'',cyl:'',ax:'',add:''}});
 const EXAMPLE = {
-  code:'EX-01', age:'52', date:new Date().toISOString().slice(0,10),
-  ans:{A1:3,C1:1,L1:2},
-  dev:{phone:3,tablet:2,laptop:1,desktop:1,watch:'na',paper:2},
-  hours:'4-6', corr:'readers'
+  code:'EX-01', dob:'1973-05-12', date:today(),
+  rx:{od:{sph:'+0.50',cyl:'-0.50',ax:'90',add:'+2.00'}, os:{sph:'+0.75',cyl:'',ax:'',add:'+2.00'}},
+  near:['paper','phone','watch'], nearNone:false,
+  desk:['sheet','ui'], deskNone:false,
+  ans:{L1:2}
 };
-function blank(){ return {code:'',age:'',date:new Date().toISOString().slice(0,10),ans:{},dev:{},hours:null,corr:null}; }
+function blank(){ return {code:'',dob:'',date:today(),rx:blankRx(),near:[],nearNone:false,desk:[],deskNone:false,ans:{}}; }
 
 let lang = 'he';
 let S = JSON.parse(JSON.stringify(EXAMPLE));
@@ -290,107 +342,137 @@ try{ const l = localStorage.getItem('nvtp-lang'); if(l==='he'||l==='en') lang=l;
 
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-function scaleQ(id, n, text){
+function ageOf(dob, on){
+  if(!dob) return null;
+  const b = new Date(dob+'T00:00:00'), d = new Date((on||today())+'T00:00:00');
+  if(isNaN(b)||isNaN(d)) return null;
+  let a = d.getFullYear()-b.getFullYear();
+  const m = d.getMonth()-b.getMonth();
+  if(m<0 || (m===0 && d.getDate()<b.getDate())) a--;
+  return (a>=0 && a<130) ? a : null;
+}
+function fmtD(v){ if(v===''||v==null) return ''; const n = parseFloat(String(v).replace(',','.')); if(isNaN(n)) return String(v); return (n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(2).replace(/^(\d)/,'$1'); }
+function rxEye(e){
+  const r = S.rx[e]; const parts = [];
+  if(r.sph!=='') parts.push(fmtD(r.sph));
+  if(r.cyl!=='' && parseFloat(r.cyl)!==0) parts.push(fmtD(r.cyl)+(r.ax!==''?' × '+r.ax+'°':''));
+  return parts.join(' ');
+}
+function rxLine(){
+  const od = rxEye('od'), os = rxEye('os');
+  if(!od && !os) return '';
+  return `OD ${od||'—'} · OS ${os||'—'}`;
+}
+function addLine(){
+  const a = S.rx.od.add, b = S.rx.os.add;
+  if(a==='' && b==='') return '';
+  return `ADD OD ${fmtD(a)||'—'} · OS ${fmtD(b)||'—'}`;
+}
+
+function scaleQ(id, n, text, sub){
   const t = T[lang];
   const miss = showMissing && S.ans[id]===undefined;
-  let h = `<div class="q${miss?' missing':''}" id="q-${id}"><div class="q-text"><span class="qn">${n}</span><span>${esc(text)}</span></div><div class="scale" role="radiogroup" aria-label="${esc(text)}">`;
+  let h = `<div class="q${miss?' missing':''}" id="q-${id}"><div class="q-text"><span class="qn">${n}</span><span>${esc(text)}</span></div>`;
+  if(sub) h += `<p class="q-sub">${esc(sub)}</p>`;
+  h += `<div class="scale" role="radiogroup" aria-label="${esc(text)}">`;
   t.scale.forEach((lab,v)=>{
     const iid = `r-${id}-${v}`;
     h += `<input type="radio" name="${id}" id="${iid}" value="${v}" data-k="ans" data-id="${id}"${S.ans[id]===v?' checked':''}><label for="${iid}">${esc(lab)}<span class="v">${v}</span></label>`;
   });
   return h + `</div></div>`;
 }
-function devQ(d, n){
+function pickQ(key, n, q, list, rank, labels){
   const t = T[lang];
-  const miss = showMissing && S.dev[d]===undefined;
-  let h = `<div class="q${miss?' missing':''}" id="q-${d}"><div class="q-text"><span class="qn">${n}</span><span>${esc(t.dev[d])}</span></div><div class="scale dev" role="radiogroup" aria-label="${esc(t.dev[d])}">`;
-  ['na',0,1,2,3,4].forEach(v=>{
-    const iid = `d-${d}-${v}`;
-    h += `<input type="radio" name="dev-${d}" id="${iid}" value="${v}" data-k="dev" data-id="${d}"${S.dev[d]===v?' checked':''}><label for="${iid}">${v==='na'?'—':v}</label>`;
+  const sel = S[key], none = S[key+'None'];
+  const miss = showMissing && !sel.length && !none;
+  let h = `<div class="q${miss?' missing':''}" id="q-${key}"><div class="q-text"><span class="qn">${n}</span><span>${esc(q)}</span></div><p class="q-sub">${esc(t.multi)}</p>`;
+  h += `<div class="order" aria-hidden="true"><span>${esc(t.orderLbl[0])}</span><span>${esc(t.orderLbl[1])} ${lang==='he'?'←':'→'}</span></div>`;
+  h += `<div class="picks" role="group" aria-label="${esc(q)}">`;
+  list.forEach((o,i)=>{
+    const iid = `p-${key}-${o}`;
+    const dots = [1,2,3,4,5].map(k=>`<i class="${k<=i+1?'on':''}"></i>`).join('');
+    h += `<input type="checkbox" id="${iid}" data-pick="${key}" value="${o}"${sel.includes(o)?' checked':''}><label for="${iid}">${ICON[o]}<span>${esc(labels[o])}</span><span class="lvl" aria-hidden="true">${dots}</span></label>`;
   });
-  return h + `</div></div>`;
-}
-function chipQ(key, n, q, opts, labels){
-  const miss = showMissing && !S[key];
-  let h = `<div class="q${miss?' missing':''}" id="q-${key}"><div class="q-text"><span class="qn">${n}</span><span>${esc(q)}</span></div><div class="chips" role="radiogroup" aria-label="${esc(q)}">`;
-  opts.forEach((o,i)=>{
-    const iid = `c-${key}-${o}`;
-    h += `<input type="radio" name="${key}" id="${iid}" value="${o}" data-k="${key}"${S[key]===o?' checked':''}><label for="${iid}">${esc(labels[i])}</label>`;
-  });
+  const nid = `p-${key}-none`;
+  h += `<input type="checkbox" id="${nid}" data-pick="${key}" value="none"${none?' checked':''}><label for="${nid}" class="none">${esc(t.none)}</label>`;
   return h + `</div></div>`;
 }
 
 function renderForm(){
   const t = T[lang];
   let n = 0, h = '';
+  const age = ageOf(S.dob, S.date);
   h += `<div class="sheet"><div class="ids">
     <label class="field">${t.code}<input id="f-code" data-f="code" value="${esc(S.code)}" autocomplete="off"></label>
-    <label class="field">${t.age}<input id="f-age" data-f="age" inputmode="numeric" value="${esc(S.age)}"></label>
+    <label class="field">${t.dob}<span class="dob-row"><input id="f-dob" data-f="dob" type="date" value="${esc(S.dob)}"><output class="age-out" id="age-out">${age===null?'—':esc(t.ageOut(age))}</output></span></label>
     <label class="field">${t.date}<input id="f-date" data-f="date" type="date" value="${esc(S.date)}"></label>
   </div></div>`;
-  h += `<div class="sheet"><div class="sheet-h"><span class="tag">A</span><h2>${t.secA}</h2></div><p class="lead">${t.leadA}</p>`;
-  SYM.forEach(id=>{ h += scaleQ(id, ++n, t.items[id]); });
-  h += `</div>`;
-  h += `<div class="sheet"><div class="sheet-h"><span class="tag">B</span><h2>${t.secB}</h2></div><p class="lead">${t.leadB}</p><p class="legend">${t.legendB}</p>`;
-  DEV.forEach(d=>{ h += devQ(d, ++n); });
-  h += chipQ('hours', ++n, t.hoursQ, HOURS, t.hours);
-  h += `</div>`;
-  h += `<div class="sheet"><div class="sheet-h"><span class="tag">C</span><h2>${t.secD}</h2></div>`;
-  h += chipQ('corr', ++n, t.corrQ, CORR, t.corr);
+  h += `<div class="sheet"><div class="sheet-h"><span class="tag">Rx</span><h2>${t.rxH}</h2></div><p class="lead">${t.rxLead}</p>
+    <table class="rx"><thead><tr><th></th>${['sph','cyl','ax','add'].map(c=>`<th>${t.rxCol[c]}</th>`).join('')}</tr></thead><tbody>`;
+  ['od','os'].forEach(e=>{
+    h += `<tr><th class="eye" scope="row"><b>${e.toUpperCase()}</b><span class="eye-l"> ${t.eye[e]}</span></th>
+      <td><input data-rx="${e}.sph" inputmode="decimal" placeholder="0.00" value="${esc(S.rx[e].sph)}" aria-label="${e.toUpperCase()} Sph"></td>
+      <td><input data-rx="${e}.cyl" inputmode="decimal" placeholder="0.00" value="${esc(S.rx[e].cyl)}" aria-label="${e.toUpperCase()} Cyl"></td>
+      <td><input data-rx="${e}.ax" inputmode="numeric" placeholder="0–180" value="${esc(S.rx[e].ax)}" aria-label="${e.toUpperCase()} Axis"></td>
+      <td><input data-rx="${e}.add" inputmode="decimal" placeholder="+0.00" value="${esc(S.rx[e].add)}" aria-label="${e.toUpperCase()} ADD"></td></tr>`;
+  });
+  h += `</tbody></table></div>`;
+  h += `<div class="sheet"><div class="sheet-h"><span class="tag">A</span><h2>${t.secA}</h2></div>`;
+  h += pickQ('near', ++n, t.nearQ, NEAR, NEAR_RANK, t.near);
+  h += pickQ('desk', ++n, t.deskQ, DESK, DESK_RANK, t.desk);
+  h += scaleQ('L1', ++n, t.lowQ, t.lowSub);
   h += `</div>`;
   document.getElementById('form').innerHTML = h;
 }
 
 function answered(){
   let c = 0;
-  SYM.forEach(id=>{ if(S.ans[id]!==undefined) c++; });
-  DEV.forEach(d=>{ if(S.dev[d]!==undefined) c++; });
-  ['hours','corr'].forEach(k=>{ if(S[k]) c++; });
+  if(S.near.length || S.nearNone) c++;
+  if(S.desk.length || S.deskNone) c++;
+  if(S.ans.L1!==undefined) c++;
   return c;
 }
-const sum = ids => ids.reduce((a,id)=>a+S.ans[id],0);
-const pct = (v,max) => Math.round(v/max*100);
 const bandIdx = v => v<25?0:v<50?1:v<75?2:3;
 const BAND_COL = ['var(--ok)','var(--accent)','var(--warn)','var(--crit)'];
+const pickScore = (sel, rank) => sel.length ? Math.max(...sel.map(o=>rank[o]))*20 : 0;
 
 function compute(){
   const t = T[lang];
-  const A = pct(S.ans.A1,4), C = pct(S.ans.C1,4), L = pct(S.ans.L1,4);
-  const CL = Math.max(C, L);
-  const nvsi = pct(sum(SYM),12);
-  const diff = A - CL;
+  const N = pickScore(S.near, NEAR_RANK), D = pickScore(S.desk, DESK_RANK), L = S.ans.L1*25;
+  const nvsi = Math.round((N+D+L)/3);
+  const A = Math.max(N, D), C = L;
+  const diff = A - C;
   const emph = diff>=15?'acuity':diff<=-15?'contrast':'balanced';
-  let sA = (A+CL)===0 ? 50 : Math.round(A/(A+CL)*10)*10;
+  let sA = (A+C)===0 ? 50 : Math.round(A/(A+C)*10)*10;
   sA = Math.min(70, Math.max(30, sA));
   if(emph==='balanced') sA = Math.min(60, Math.max(40, sA));
   const sC = 100 - sA;
-  const used = DEV.filter(d=>S.dev[d]!=='na');
-  const maxV = used.length ? Math.max(...used.map(d=>S.dev[d])) : 0;
-  const top = maxV>0 ? used.filter(d=>S.dev[d]===maxV) : [];
-  let devText, devShort, devCode;
-  if(!top.length){ devText = t.noDev; devShort = t.dev.phone; devCode='phone'; }
-  else {
-    const d = top[0]; devCode = d;
-    devText = d==='paper' ? t.paperDev : t.devFmt(top.filter(x=>x!=='paper').map(x=>t.dev[x]).join(' / ') || t.dev[d], DIST[d]);
-    devShort = d==='paper' ? t.dev.tablet : t.dev[d];
-  }
-  const need = nvsi;
-  const wk = need>=75?7:need>=50?5:need>=25?4:3;
-  const min = 15;
-  const weekly = min*wk;
+  let devCode = 'none';
+  if(S.near.length) devCode = S.near.slice().sort((a,b)=>NEAR_RANK[b]-NEAR_RANK[a])[0];
+  else if(D>0) devCode = 'desktop';
+  const trainDev = {laptop:'laptop',tablet:'tablet',paper:'tablet',phone:'phone',watch:'phone',desktop:'desktop',none:'phone'}[devCode];
+  const wk = nvsi>=75?7:nvsi>=50?5:nvsi>=25?4:3;
+  const min = 15, weekly = min*wk;
   const prio = nvsi>=50?'high':nvsi<25?'low':'med';
+  const age = ageOf(S.dob, S.date);
   const flags = [];
-  const age = parseInt(S.age,10);
-  if(!isNaN(age) && age<40) flags.push(t.flagAge);
+  if(age!==null && age<40) flags.push(t.flagAge);
+  if(!rxLine()) flags.push(t.flagRx);
   if(nvsi<25) flags.push(t.flagLow);
-  return {A,C,L,nvsi,band:t.bands[bandIdx(nvsi)],bi:bandIdx(nvsi),emph,emphL:t.emph[emph],sA,sC,devText,devShort,devCode,top,min,wk,weekly,need,prio,flags,maxV};
+  return {N,D,L,A,C,nvsi,band:t.bands[bandIdx(nvsi)],bi:bandIdx(nvsi),emph,emphL:t.emph[emph],sA,sC,devCode,trainDev,devText:t.dev[devCode],devShort:t.devShort[devCode],min,wk,weekly,prio,flags,age};
 }
 
 function barRow(label, v, extra, cls){
-  if(v===null) return `<div class="bar-row na"><span>${esc(label)}</span><div class="bar"></div><span class="val">${esc(extra)}</span></div>`;
   return `<div class="bar-row${cls?' '+cls:''}"><span>${esc(label)}</span><div class="bar"><span class="tick" style="inset-inline-start:25%"></span><span class="tick" style="inset-inline-start:50%"></span><span class="tick" style="inset-inline-start:75%"></span><i style="width:${v}%"></i></div><span class="val">${extra}</span></div>`;
 }
 const axis = () => `<div class="axis"><span></span><div><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><span></span></div>`;
+function chosenList(key, list, rank, labels){
+  const t = T[lang];
+  const sel = S[key];
+  if(!sel.length) return `<div class="chosen"><span>${esc(t.noneSel)}</span></div>`;
+  const top = Math.max(...sel.map(o=>rank[o]));
+  return `<div class="chosen">${list.filter(o=>sel.includes(o)).map(o=>`<span class="${rank[o]===top?'top':''}">${esc(labels[o])}</span>`).join('')}</div>`;
+}
 
 function renderResults(){
   const t = T[lang];
@@ -401,24 +483,17 @@ function renderResults(){
     return;
   }
   const r = compute();
-  const who = [S.code||'—', S.age?`${t.age} ${S.age}`:'', S.date].filter(Boolean).join(' · ');
+  const who = [S.code||'—', r.age!==null?`${t.age} ${r.age}`:'', S.date].filter(Boolean).join(' · ');
   let h = `<div class="report" style="--band:${BAND_COL[r.bi]}">`;
   h += `<div class="r-head"><div class="score"><b>${r.nvsi}</b><span>/ 100</span></div><div class="r-meta"><span class="who"><span class="num">${esc(who)}</span></span><h2>${t.rTitle}</h2><span class="pill">${t.nvsi}: ${r.band}</span><p class="sum">${esc(t.summary(r))}</p></div></div>`;
   h += `<div class="r-body">`;
   h += `<div class="r-sec"><h3>${t.domH}</h3>`;
-  const domMax = Math.max(r.A,r.C,r.L);
-  [['A',r.A],['C',r.C],['L',r.L]].forEach(([k,v])=>{
-    h += barRow(t.dom[k], v, `${v}`, (v===domMax && v>0)?'top':'');
-  });
+  const domMax = Math.max(r.N,r.D,r.L);
+  [['N',r.N],['D',r.D],['L',r.L]].forEach(([k,v])=>{ h += barRow(t.dom[k], v, `${v}`, (v===domMax && v>0)?'top':''); });
   h += axis() + `</div>`;
-  h += `<div class="r-sec"><h3>${t.devH}</h3>`;
-  DEV.slice().sort((a,b)=>{
-    const va = S.dev[a]==='na'?-1:S.dev[a], vb = S.dev[b]==='na'?-1:S.dev[b]; return vb-va;
-  }).forEach(d=>{
-    if(S.dev[d]==='na') h += barRow(t.dev[d], null, t.notUsed);
-    else h += barRow(t.dev[d], S.dev[d]*25, `${S.dev[d]}/4`, (r.maxV>0 && S.dev[d]===r.maxV)?'top':'');
-  });
-  h += axis() + `</div>`;
+  h += `<div class="r-sec"><h3>${t.selH}</h3><p class="chosen-h">${t.nearH}</p>${chosenList('near',NEAR,NEAR_RANK,t.near)}<p class="chosen-h">${t.deskH}</p>${chosenList('desk',DESK,DESK_RANK,t.desk)}`;
+  const rl = rxLine(), al = addLine();
+  h += `<p class="chosen-h">${t.rxRepH}</p><p class="num" style="font-size:.86rem">${esc(rl||t.rxNone)}${al?'<br>'+esc(al):''}</p></div>`;
   h += `<div class="r-sec full"><h3>${t.planH}</h3><table class="plan"><tbody>
     <tr><th>${t.rows.emph}</th><td>${esc(r.emphL)} <span class="num">(${r.A} / ${r.C})</span></td></tr>
     <tr><th>${t.rows.split}</th><td>${esc(t.split(r.sA,r.sC))}</td></tr>
@@ -427,7 +502,7 @@ function renderResults(){
     <tr><th>${t.rows.freq}</th><td>${r.wk===7?t.daily:esc(t.freq(r.wk))}</td></tr>
     <tr><th>${t.rows.session}</th><td>${esc(t.sess(r.min))}</td></tr>
     <tr><th>${t.rows.weekly}</th><td>${esc(t.weeklyFmt(r.weekly))}</td></tr>
-    <tr><th>${t.rows.corr}</th><td>${esc(t.corrTrain[CORR.indexOf(S.corr)])}</td></tr>
+    <tr><th>${t.rows.corr}</th><td>${esc(t.corrTrain(''))}${rl?'<br><span class="num">'+esc(rl)+'</span>':''}</td></tr>
     <tr><th>${t.rows.prio}</th><td>${t.prio[r.prio]}</td></tr>
   </tbody></table></div>`;
   if(r.flags.length) h += `<div class="r-sec full"><h3>${t.flagH}</h3><div class="flags">${r.flags.map(f=>`<p class="flag">${esc(f)}</p>`).join('')}</div></div>`;
@@ -443,24 +518,30 @@ function renderResults(){
 
 function summaryText(r){
   const t = T[lang];
+  const names = (key,labels)=> S[key].length ? S[key].map(o=>labels[o]).join(', ') : t.noneSel;
   const lines = [
-    `${t.rTitle}: ${S.code||'—'} · ${t.age} ${S.age||'—'} · ${S.date}`,
+    `${t.rTitle}: ${S.code||'—'} · ${t.dob} ${S.dob||'—'} (${t.age} ${r.age??'—'}) · ${S.date}`,
+    `${t.rxRepH}: ${rxLine()||t.rxNone}${addLine()?' · '+addLine():''}`,
     `${t.nvsi}: ${r.nvsi}/100 (${r.band})`,
-    `${t.dom.A} ${r.A} · ${t.dom.C} ${r.C} · ${t.dom.L} ${r.L}`,
+    `${t.dom.N} ${r.N} · ${t.dom.D} ${r.D} · ${t.dom.L} ${r.L}`,
+    `${t.nearH}: ${names('near',t.near)}`,
+    `${t.deskH}: ${names('desk',t.desk)}`,
     `${t.rows.emph}: ${r.emphL} — ${t.split(r.sA,r.sC)}`,
     `${t.rows.gabor}: ${t.gabor[r.emph]}`,
     `${t.rows.device}: ${r.devText}`,
     `${t.rows.freq}: ${r.wk===7?t.daily:t.freq(r.wk)} · ${t.rows.session}: ${t.sess(r.min)} · ${t.rows.weekly}: ${t.weeklyFmt(r.weekly)}`,
-    `${t.rows.corr}: ${t.corrTrain[CORR.indexOf(S.corr)]}`,
+    `${t.rows.corr}: ${t.corrTrain(rxLine())}`,
     `${t.rows.prio}: ${t.prio[r.prio]}`
   ];
   r.flags.forEach(f=>lines.push('• '+f));
   return lines.join('\n');
 }
 function csvText(r){
-  const head = ['code','age','date','nvsi','band','acuity','contrast','low_light','emphasis','split_acuity','split_contrast','train_device','session_min','sessions_week','weekly_min','priority',...SYM,...DEV.map(d=>'dev_'+d),'screen_hours','correction'];
+  const head = ['code','dob','age','date','od_sph','od_cyl','od_axis','od_add','os_sph','os_cyl','os_axis','os_add','nvsi','band','reading_distance','computer_distance','low_light','emphasis','split_acuity','split_contrast','train_device','session_min','sessions_week','weekly_min','priority','near_items','desktop_items','L1'];
   const band = T.en.bands[r.bi].toLowerCase();
-  const vals = [S.code,S.age,S.date,r.nvsi,band,r.A,r.C,r.L,r.emph,r.sA,r.sC,r.devCode==='paper'?'tablet':r.devCode,r.min,r.wk,r.weekly,r.prio,...SYM.map(i=>S.ans[i]),...DEV.map(d=>S.dev[d]),S.hours,S.corr];
+  const rx = ['od','os'].flatMap(e=>['sph','cyl','ax','add'].map(k=>S.rx[e][k]));
+  const vals = [S.code,S.dob,r.age??'',S.date,...rx,r.nvsi,band,r.N,r.D,r.L,r.emph,r.sA,r.sC,r.trainDev,r.min,r.wk,r.weekly,r.prio,
+    S.nearNone?'none':S.near.join(';'), S.deskNone?'none':S.desk.join(';'), S.ans.L1];
   const q = v => { v = String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; };
   return head.join(',') + '\n' + vals.map(q).join(',');
 }
@@ -493,21 +574,36 @@ function renderProgress(){
   document.getElementById('prog-bar').style.width = (a/TOTAL*100)+'%';
 }
 function renderAll(){ renderChrome(); renderForm(); renderProgress(); renderResults(); }
+function updateAge(){
+  const a = ageOf(S.dob, S.date), o = document.getElementById('age-out');
+  if(o) o.textContent = a===null ? '—' : T[lang].ageOut(a);
+}
 
 document.getElementById('form').addEventListener('change', e=>{
   const el = e.target;
   if(el.type==='radio'){
-    const k = el.dataset.k, v = el.value;
-    if(k==='ans') S.ans[el.dataset.id] = +v;
-    else if(k==='dev') S.dev[el.dataset.id] = v==='na'?'na':+v;
-    else S[k] = v;
+    S.ans[el.dataset.id] = +el.value;
+    const q = el.closest('.q'); if(q) q.classList.remove('missing');
+    renderProgress(); renderResults();
+  } else if(el.type==='checkbox' && el.dataset.pick){
+    const key = el.dataset.pick, v = el.value;
+    if(v==='none'){
+      S[key+'None'] = el.checked;
+      if(el.checked){ S[key] = []; el.closest('.picks').querySelectorAll('input').forEach(i=>{ if(i!==el) i.checked=false; }); }
+    } else {
+      const set = new Set(S[key]);
+      el.checked ? set.add(v) : set.delete(v);
+      S[key] = (key==='near'?NEAR:DESK).filter(o=>set.has(o));
+      if(el.checked && S[key+'None']){ S[key+'None'] = false; const n = document.getElementById(`p-${key}-none`); if(n) n.checked = false; }
+    }
     const q = el.closest('.q'); if(q) q.classList.remove('missing');
     renderProgress(); renderResults();
   }
 });
 document.getElementById('form').addEventListener('input', e=>{
-  const f = e.target.dataset.f;
-  if(f){ S[f] = e.target.value; renderResults(); }
+  const f = e.target.dataset.f, rx = e.target.dataset.rx;
+  if(f){ S[f] = e.target.value; if(f==='dob'||f==='date') updateAge(); renderResults(); }
+  else if(rx){ const [eye,k] = rx.split('.'); S.rx[eye][k] = e.target.value.trim(); renderResults(); }
 });
 document.getElementById('form').addEventListener('submit', e=>e.preventDefault());
 document.getElementById('btn-new').addEventListener('click', ()=>{

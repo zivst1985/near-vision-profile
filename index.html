@@ -203,7 +203,7 @@ const NEAR = ['laptop','tablet','paper','phone','watch'];
 const NEAR_RANK = {laptop:5, tablet:4, paper:3, phone:2, watch:1};
 const DESK = ['head','web','doc','sheet','ui'];
 const DESK_RANK = {head:5, web:4, doc:3, sheet:2, ui:1};
-const TOTAL = 3;
+const TOTAL = 4;
 
 const ICON = {
  laptop:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="10" y="11" width="28" height="19" rx="2"/><path d="M5 35h38l-3 4H8z"/><path d="M15 17h18M15 21h14M15 25h16" stroke-width="1.5"/></svg>',
@@ -234,11 +234,13 @@ const T = {
   desk:{head:'כותרות וטקסט גדול',web:'דפי אינטרנט בדפדפן',doc:'מסמכי Word ומיילים',sheet:'טבלאות Excel',ui:'תפריטים, סרגלי כלים וטקסט קטן'},
   none:'אין לי קושי',
   lowQ:'קשה לי לקרוא בתאורה חלשה (למשל במסעדה או בערב)', lowSub:'בחודש האחרון, באיזו תדירות?',
+  conQ:'קשה לי לקרוא טקסט דהוי או בניגודיות נמוכה (למשל אפור על רקע לבן)',
   scale:['אף פעם','לעיתים רחוקות','לפעמים','לעיתים קרובות','תמיד'],
   prog:(n,t)=>`${n} מתוך ${t} שאלות נענו`, view:'לפרופיל',
   rTitle:'פרופיל הנבדק', incomplete:n=>`חסרות ${n} תשובות. השאלות שלא נענו מסומנות באדום.`,
   nvsi:'מדד תסמינים (NVSI)', bands:['מינימלי','קל','בינוני','חמור'],
-  dom:{N:'מרחק קריאה',D:'מרחק מחשב',L:'תאורה חלשה'},
+  dom:{V:'חדות',C:'ניגודיות',L:'תאורה חלשה'},
+  part:{N:'מרחק קריאה',D:'מרחק מחשב',X:'ADD'}, vcParts:'Visual clarity מורכב מ:', addNone:'ADD לא הוזן', contrastSide:'ניגודיות / תאורה חלשה',
   domH:'ציונים לפי תחום', selH:'מה קשה לקרוא', nearH:'מרחק קריאה', deskH:'מחשב שולחני', noneSel:'אין קושי',
   rxRepH:'מרשם', rxNone:'לא הוזן',
   planH:'המלצת אימון',
@@ -255,15 +257,18 @@ const T = {
   flagAge:'גיל מתחת ל־40: מחוץ לאוכלוסיית היעד של המחקר.',
   flagLow:'מעט תסמינים: מתאים כנבדק ביקורת או בעדיפות נמוכה.',
   flagRx:'לא הוזן מרשם לרחוק. יש להשלים לפני האימון.',
+  flagAdd:'לא הוזן ADD: Visual clarity חושב לפי שאלות 1–2 בלבד.',
   flagH:'הערות',
-  summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emph==='balanced'?'אימון מאוזן':'דגש על '+r.emphL} (${r.sA}/${r.sC}), אימון על ${r.devShort}, ${r.wk===7?'כל יום':`${r.wk} פעמים בשבוע`} × ${r.min} דק׳.`,
+  summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ⁨Visual clarity ${r.V}⁩, ⁨Contrast ${r.C}⁩, ⁨Low light ${r.L}⁩. ${r.emph==='balanced'?'אימון מאוזן':'דגש על '+r.emphL} (${r.sA}/${r.sC}), אימון על ${r.devShort}, ${r.wk===7?'כל יום':`${r.wk} פעמים בשבוע`} × ${r.min} דק׳.`,
   copySum:'העתק סיכום', copyCsv:'העתק שורת CSV', copied:'הועתק', copyFail:'ההעתקה נחסמה. הטקסט מסומן למטה, העתיקו ידנית.',
   method:'איך מחושב',
   methodItems:[
    'האפשרויות בשאלות 1 ו־2 מסודרות מהקל לקשה לראייה. ציון השאלה נקבע לפי האפשרות הקלה ביותר שסומנה: הקלה ביותר = 100, השנייה = 80, וכן הלאה עד הקשה ביותר = 20. "אין לי קושי" = 0.',
-   'תאורה חלשה: אף פעם = 0 עד תמיד = 100 (בקפיצות של 25).',
-   'NVSI = ממוצע שלושת הציונים. רמות: 0–24 מינימלי, 25–49 קל, 50–74 בינוני, 75–100 חמור.',
-   'דגש: צד החדות הוא הגבוה מבין מרחק קריאה ומרחק מחשב; צד הניגודיות הוא תאורה חלשה. הפרש של 15 נקודות ומעלה קובע דגש; אחרת מאוזן. חלוקת הבלוקים בטווח 30–70%, מעוגלת ל־10.',
+   'ADD: הגבוה מבין שתי העיניים. ככל שה־ADD גבוה יותר הציון גבוה יותר: ‎+1.00 = 25, ‎+1.50 = 50, ‎+2.00 = 75, ‎+2.50 ומעלה = 100 (‎+0.50 ומטה = 0).',
+   'Visual clarity = ממוצע של מרחק קריאה (שאלה 1), מרחק מחשב (שאלה 2) ו־ADD. אם לא הוזן ADD, ממוצע שתי השאלות.',
+   'Contrast (שאלה 4) ו־Low light (שאלה 3): אף פעם = 0 עד תמיד = 100 (בקפיצות של 25).',
+   'NVSI = ממוצע שלושת המדדים: Visual clarity, Contrast ו־Low light. רמות: 0–24 מינימלי, 25–49 קל, 50–74 בינוני, 75–100 חמור.',
+   'דגש: צד החדות הוא Visual clarity; צד הניגודיות הוא הגבוה מבין Contrast ו־Low light. הפרש של 15 נקודות ומעלה קובע דגש; אחרת מאוזן. חלוקת הבלוקים בטווח 30–70%, מעוגלת ל־10.',
    'תדירות לפי NVSI: 75 ומעלה = כל יום, 50–74 = 5 פעמים בשבוע, 25–49 = 4 פעמים, מתחת ל־25 = 3 פעמים. משך מפגש: 15 דקות.',
    'מכשיר: המכשיר הקל ביותר שסומן בשאלה 1 (המגביל ביותר תפקודית). אם לא סומן מכשיר ויש קושי במחשב, מחשב שולחני.',
    'עדיפות: גבוהה אם NVSI 50 ומעלה; נמוכה אם מתחת ל־25.'
@@ -285,11 +290,13 @@ const T = {
   desk:{head:'Headings and large text',web:'Web pages in a browser',doc:'Word documents and email',sheet:'Excel spreadsheets',ui:'Menus, toolbars and small text'},
   none:'No difficulty',
   lowQ:'Reading in low light is hard (e.g. in a restaurant or in the evening)', lowSub:'In the last month, how often?',
+  conQ:'Faded or low-contrast text is hard to read (e.g. grey on white)',
   scale:['Never','Rarely','Sometimes','Often','Always'],
   prog:(n,t)=>`${n} of ${t} questions answered`, view:'View profile',
   rTitle:'Participant profile', incomplete:n=>`${n} answers missing. Unanswered questions are marked in red.`,
   nvsi:'Symptom index (NVSI)', bands:['Minimal','Mild','Moderate','Severe'],
-  dom:{N:'Reading distance',D:'Computer distance',L:'Low light'},
+  dom:{V:'Visual clarity',C:'Contrast',L:'Low light'},
+  part:{N:'Reading distance',D:'Computer distance',X:'ADD'}, vcParts:'Visual clarity is made of:', addNone:'ADD not entered', contrastSide:'contrast/low light',
   domH:'Domain scores', selH:'What is hard to read', nearH:'Reading distance', deskH:'Desktop computer', noneSel:'No difficulty',
   rxRepH:'Prescription', rxNone:'Not entered',
   planH:'Training recommendation',
@@ -306,15 +313,18 @@ const T = {
   flagAge:'Under 40: outside the study’s target population.',
   flagLow:'Few symptoms: suitable as a control or low-priority participant.',
   flagRx:'No distance prescription entered. Complete it before training.',
+  flagAdd:'No ADD entered: Visual clarity uses questions 1–2 only.',
   flagH:'Notes',
-  summary:(r)=>`NVSI ${r.nvsi} (${r.band}). ${r.emphL} emphasis (${r.sA}/${r.sC}), train on ${r.devShort}, ${r.wk===7?'daily':`${r.wk}×/week`} × ${r.min} min.`,
+  summary:(r)=>`NVSI ${r.nvsi} (${r.band}): Visual clarity ${r.V}, Contrast ${r.C}, Low light ${r.L}. ${r.emphL} emphasis (${r.sA}/${r.sC}), train on ${r.devShort}, ${r.wk===7?'daily':`${r.wk}×/week`} × ${r.min} min.`,
   copySum:'Copy summary', copyCsv:'Copy CSV row', copied:'Copied', copyFail:'Copying was blocked. The text is selected below; copy it by hand.',
   method:'How it is calculated',
   methodItems:[
    'The options in questions 1 and 2 run from easiest to hardest to see. The score comes from the easiest option chosen: easiest = 100, second = 80, and so on down to hardest = 20. "No difficulty" = 0.',
-   'Low light: Never = 0 to Always = 100 (steps of 25).',
-   'NVSI = mean of the three scores. Bands: 0–24 minimal, 25–49 mild, 50–74 moderate, 75–100 severe.',
-   'Emphasis: the acuity side is the higher of reading distance and computer distance; the contrast side is low light. A gap of 15 points or more sets the emphasis; otherwise balanced. The block split stays within 30–70%, rounded to 10.',
+   'ADD: the higher of the two eyes. The higher the ADD, the higher the score: +1.00 = 25, +1.50 = 50, +2.00 = 75, +2.50 or more = 100 (+0.50 or less = 0).',
+   'Visual clarity = mean of reading distance (question 1), computer distance (question 2) and ADD. Without an ADD, the mean of the two questions.',
+   'Contrast (question 4) and Low light (question 3): Never = 0 to Always = 100 (steps of 25).',
+   'NVSI = mean of the three metrics: Visual clarity, Contrast and Low light. Bands: 0–24 minimal, 25–49 mild, 50–74 moderate, 75–100 severe.',
+   'Emphasis: the acuity side is Visual clarity; the contrast side is the higher of Contrast and Low light. A gap of 15 points or more sets the emphasis; otherwise balanced. The block split stays within 30–70%, rounded to 10.',
    'Frequency follows NVSI: 75+ = daily, 50–74 = 5 times a week, 25–49 = 4 times, under 25 = 3 times. Session length: 15 minutes.',
    'Device: the easiest device chosen in question 1 (the most limiting in daily use). If no device is chosen but the computer is hard, a desktop computer.',
    'Priority: high if NVSI is 50+; low if under 25.'
@@ -330,7 +340,7 @@ const EXAMPLE = {
   rx:{od:{sph:'+0.50',cyl:'-0.50',ax:'90',add:'+2.00'}, os:{sph:'+0.75',cyl:'',ax:'',add:'+2.00'}},
   near:['paper','phone','watch'], nearNone:false,
   desk:['sheet','ui'], deskNone:false,
-  ans:{L1:2}
+  ans:{L1:2,C1:2}
 };
 function blank(){ return {code:'',dob:'',date:today(),rx:blankRx(),near:[],nearNone:false,desk:[],deskNone:false,ans:{}}; }
 
@@ -421,6 +431,7 @@ function renderForm(){
   h += pickQ('near', ++n, t.nearQ, NEAR, NEAR_RANK, t.near);
   h += pickQ('desk', ++n, t.deskQ, DESK, DESK_RANK, t.desk);
   h += scaleQ('L1', ++n, t.lowQ, t.lowSub);
+  h += scaleQ('C1', ++n, t.conQ, t.lowSub);
   h += `</div>`;
   document.getElementById('form').innerHTML = h;
 }
@@ -430,6 +441,7 @@ function answered(){
   if(S.near.length || S.nearNone) c++;
   if(S.desk.length || S.deskNone) c++;
   if(S.ans.L1!==undefined) c++;
+  if(S.ans.C1!==undefined) c++;
   return c;
 }
 const bandIdx = v => v<25?0:v<50?1:v<75?2:3;
@@ -438,12 +450,17 @@ const pickScore = (sel, rank) => sel.length ? Math.max(...sel.map(o=>rank[o]))*2
 
 function compute(){
   const t = T[lang];
-  const N = pickScore(S.near, NEAR_RANK), D = pickScore(S.desk, DESK_RANK), L = S.ans.L1*25;
-  const nvsi = Math.round((N+D+L)/3);
-  const A = Math.max(N, D), C = L;
-  const diff = A - C;
+  const N = pickScore(S.near, NEAR_RANK), D = pickScore(S.desk, DESK_RANK);
+  const L = S.ans.L1*25, C = S.ans.C1*25;
+  const adds = ['od','os'].map(e=>parseFloat(String(S.rx[e].add).replace(',','.'))).filter(x=>!isNaN(x));
+  const addMax = adds.length ? Math.max(...adds) : null;
+  const X = addMax===null ? null : Math.round(Math.min(100, Math.max(0, (addMax-0.5)*50)));
+  const V = Math.round(X===null ? (N+D)/2 : (N+D+X)/3);
+  const nvsi = Math.round((V+C+L)/3);
+  const A = V, CS = Math.max(C, L);
+  const diff = A - CS;
   const emph = diff>=15?'acuity':diff<=-15?'contrast':'balanced';
-  let sA = (A+C)===0 ? 50 : Math.round(A/(A+C)*10)*10;
+  let sA = (A+CS)===0 ? 50 : Math.round(A/(A+CS)*10)*10;
   sA = Math.min(70, Math.max(30, sA));
   if(emph==='balanced') sA = Math.min(60, Math.max(40, sA));
   const sC = 100 - sA;
@@ -458,12 +475,14 @@ function compute(){
   const flags = [];
   if(age!==null && age<40) flags.push(t.flagAge);
   if(!rxLine()) flags.push(t.flagRx);
+  if(X===null) flags.push(t.flagAdd);
   if(nvsi<25) flags.push(t.flagLow);
-  return {N,D,L,A,C,nvsi,band:t.bands[bandIdx(nvsi)],bi:bandIdx(nvsi),emph,emphL:t.emph[emph],sA,sC,devCode,trainDev,devText:t.dev[devCode],devShort:t.devShort[devCode],min,wk,weekly,prio,flags,age};
+  return {N,D,X,V,L,A,C,CS,addMax,nvsi,band:t.bands[bandIdx(nvsi)],bi:bandIdx(nvsi),emph,emphL:t.emph[emph],sA,sC,devCode,trainDev,devText:t.dev[devCode],devShort:t.devShort[devCode],min,wk,weekly,prio,flags,age};
 }
 
-function barRow(label, v, extra, cls){
-  return `<div class="bar-row${cls?' '+cls:''}"><span>${esc(label)}</span><div class="bar"><span class="tick" style="inset-inline-start:25%"></span><span class="tick" style="inset-inline-start:50%"></span><span class="tick" style="inset-inline-start:75%"></span><i style="width:${v}%"></i></div><span class="val">${extra}</span></div>`;
+const DOM_EN = {V:'Visual clarity',C:'Contrast',L:'Low light'};
+function barRow(label, v, extra, cls, sub){
+  return `<div class="bar-row${cls?' '+cls:''}"><span>${esc(label)}${sub?`<br><bdi class="en" dir="ltr">${esc(sub)}</bdi>`:''}</span><div class="bar"><span class="tick" style="inset-inline-start:25%"></span><span class="tick" style="inset-inline-start:50%"></span><span class="tick" style="inset-inline-start:75%"></span><i style="width:${v}%"></i></div><span class="val">${extra}</span></div>`;
 }
 const axis = () => `<div class="axis"><span></span><div><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><span></span></div>`;
 function chosenList(key, list, rank, labels){
@@ -488,14 +507,15 @@ function renderResults(){
   h += `<div class="r-head"><div class="score"><b>${r.nvsi}</b><span>/ 100</span></div><div class="r-meta"><span class="who"><span class="num">${esc(who)}</span></span><h2>${t.rTitle}</h2><span class="pill">${t.nvsi}: ${r.band}</span><p class="sum">${esc(t.summary(r))}</p></div></div>`;
   h += `<div class="r-body">`;
   h += `<div class="r-sec"><h3>${t.domH}</h3>`;
-  const domMax = Math.max(r.N,r.D,r.L);
-  [['N',r.N],['D',r.D],['L',r.L]].forEach(([k,v])=>{ h += barRow(t.dom[k], v, `${v}`, (v===domMax && v>0)?'top':''); });
-  h += axis() + `</div>`;
+  const domMax = Math.max(r.V,r.C,r.L);
+  [['V',r.V],['C',r.C],['L',r.L]].forEach(([k,v])=>{ h += barRow(t.dom[k], v, `${v}`, (v===domMax && v>0)?'top':'', lang==='he'?DOM_EN[k]:''); });
+  h += axis();
+  h += `<p class="chosen-h">${t.vcParts}</p><div class="chosen"><span>${esc(t.part.N)} <b class="num">${r.N}</b></span><span>${esc(t.part.D)} <b class="num">${r.D}</b></span>${r.X===null?`<span>${esc(t.addNone)}</span>`:`<span dir="ltr">ADD ${esc(fmtD(r.addMax))} → <b>${r.X}</b></span>`}</div></div>`;
   h += `<div class="r-sec"><h3>${t.selH}</h3><p class="chosen-h">${t.nearH}</p>${chosenList('near',NEAR,NEAR_RANK,t.near)}<p class="chosen-h">${t.deskH}</p>${chosenList('desk',DESK,DESK_RANK,t.desk)}`;
   const rl = rxLine(), al = addLine();
   h += `<p class="chosen-h">${t.rxRepH}</p><p class="num" style="font-size:.86rem">${esc(rl||t.rxNone)}${al?'<br>'+esc(al):''}</p></div>`;
   h += `<div class="r-sec full"><h3>${t.planH}</h3><table class="plan"><tbody>
-    <tr><th>${t.rows.emph}</th><td>${esc(r.emphL)} <span class="num">(${r.A} / ${r.C})</span></td></tr>
+    <tr><th>${t.rows.emph}</th><td>${esc(r.emphL)}<br><span style="font-size:.82rem;color:var(--muted)"><bdi dir="ltr">Visual clarity ${r.A}</bdi> · <bdi>${esc(t.contrastSide)} ${r.CS}</bdi></span></td></tr>
     <tr><th>${t.rows.split}</th><td>${esc(t.split(r.sA,r.sC))}</td></tr>
     <tr><th>${t.rows.gabor}</th><td>${esc(t.gabor[r.emph])}</td></tr>
     <tr><th>${t.rows.device}</th><td>${esc(r.devText)}</td></tr>
@@ -523,7 +543,7 @@ function summaryText(r){
     `${t.rTitle}: ${S.code||'—'} · ${t.dob} ${S.dob||'—'} (${t.age} ${r.age??'—'}) · ${S.date}`,
     `${t.rxRepH}: ${rxLine()||t.rxNone}${addLine()?' · '+addLine():''}`,
     `${t.nvsi}: ${r.nvsi}/100 (${r.band})`,
-    `${t.dom.N} ${r.N} · ${t.dom.D} ${r.D} · ${t.dom.L} ${r.L}`,
+    `${t.dom.V} ${r.V} (${t.part.N} ${r.N} · ${t.part.D} ${r.D} · ADD ${r.X??'—'}) · ${t.dom.C} ${r.C} · ${t.dom.L} ${r.L}`,
     `${t.nearH}: ${names('near',t.near)}`,
     `${t.deskH}: ${names('desk',t.desk)}`,
     `${t.rows.emph}: ${r.emphL} — ${t.split(r.sA,r.sC)}`,
@@ -537,11 +557,11 @@ function summaryText(r){
   return lines.join('\n');
 }
 function csvText(r){
-  const head = ['code','dob','age','date','od_sph','od_cyl','od_axis','od_add','os_sph','os_cyl','os_axis','os_add','nvsi','band','reading_distance','computer_distance','low_light','emphasis','split_acuity','split_contrast','train_device','session_min','sessions_week','weekly_min','priority','near_items','desktop_items','L1'];
+  const head = ['code','dob','age','date','od_sph','od_cyl','od_axis','od_add','os_sph','os_cyl','os_axis','os_add','nvsi','band','visual_clarity','contrast','low_light','reading_distance','computer_distance','add_score','emphasis','split_acuity','split_contrast','train_device','session_min','sessions_week','weekly_min','priority','near_items','desktop_items','L1','C1'];
   const band = T.en.bands[r.bi].toLowerCase();
   const rx = ['od','os'].flatMap(e=>['sph','cyl','ax','add'].map(k=>S.rx[e][k]));
-  const vals = [S.code,S.dob,r.age??'',S.date,...rx,r.nvsi,band,r.N,r.D,r.L,r.emph,r.sA,r.sC,r.trainDev,r.min,r.wk,r.weekly,r.prio,
-    S.nearNone?'none':S.near.join(';'), S.deskNone?'none':S.desk.join(';'), S.ans.L1];
+  const vals = [S.code,S.dob,r.age??'',S.date,...rx,r.nvsi,band,r.V,r.C,r.L,r.N,r.D,r.X??'',r.emph,r.sA,r.sC,r.trainDev,r.min,r.wk,r.weekly,r.prio,
+    S.nearNone?'none':S.near.join(';'), S.deskNone?'none':S.desk.join(';'), S.ans.L1, S.ans.C1];
   const q = v => { v = String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; };
   return head.join(',') + '\n' + vals.map(q).join(',');
 }

@@ -128,7 +128,7 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
   .bar-row,.axis{grid-template-columns:minmax(0,7em) 1fr 3.6em}
 }
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .35s ease}}
-/* v6: ranking of three categories, birth date + age, distance Rx table */
+/* v7: pick and rank situations, birth date + age, distance Rx table */
 .dob-row{display:flex;gap:8px;align-items:center}
 .dob-row input{flex:1}
 .age-out{font-family:var(--f-mono);font-size:.9rem;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:6px 10px;white-space:nowrap;min-width:5.5em;text-align:center}
@@ -141,22 +141,23 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
 .rx input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .sheet.missing{border-color:var(--crit)}
 .rank-hint{font-weight:600;color:var(--accent)}
-.rank-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.rank-card{font:inherit;color:var(--ink);text-align:start;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0}
-.rank-card:hover{border-color:var(--accent)}
-.rank-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.rank-top{display:flex;align-items:center;gap:8px;min-height:44px}
-.rank-top svg{width:34px;height:34px;flex:none;color:var(--accent)}
-.rank-name{font-weight:700;font-size:1rem;flex:1}
-.rank-card ul{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
-.rank-card.ranked{background:var(--accent-soft);border-color:var(--accent)}
-.rank-badge{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;padding:4px 8px;background:var(--accent);color:var(--sel-fg);line-height:1.1;flex:none}
-.rank-badge b{font-family:var(--f-mono);font-size:1.2rem}
-.rank-badge span{font-size:.68rem;white-space:nowrap}
-.rank-card.r1 .rank-badge{background:var(--crit)}
-.rank-card.r2 .rank-badge{background:var(--warn)}
-.rank-card.r3 .rank-badge{background:var(--ok)}
-.rank-reset{align-self:flex-start}
+.sit-group{display:flex;flex-direction:column;gap:6px;padding-top:6px}
+.sit-cat{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--accent)}
+.sit-cat svg{width:26px;height:26px;flex:none}
+.sit-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sit{font:inherit;font-size:.9rem;color:var(--ink);text-align:start;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;min-height:56px;min-width:0;position:relative}
+.sit:hover{border-color:var(--accent)}
+.sit:focus-visible,.sit-none:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sit-badge{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:600}
+.sit.on{background:var(--accent-soft);border-color:var(--accent)}
+.sit.on .sit-badge{background:var(--accent);border:0;color:var(--sel-fg)}
+.sit-text{flex:1;min-width:0}
+.sit-first{position:absolute;top:-9px;inset-inline-end:8px;font-size:.68rem;background:var(--crit);color:#fff;border-radius:999px;padding:1px 8px}
+.sit-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.sit-none{font:inherit;font-size:.88rem;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;min-height:40px}
+.sit-none.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.sit-res{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+.tagc{display:inline-block;font-size:.72rem;border-radius:4px;padding:1px 6px;margin-inline-end:4px;border:1px solid var(--line);color:var(--muted)}
 .podium{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .podium li{display:grid;grid-template-columns:2em 32px minmax(0,11em) 1fr 3.2em;gap:10px;align-items:center}
 .podium .pos{font-family:var(--f-mono);font-weight:600;font-size:1.1rem;width:1.8em;height:1.8em;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--sel-fg)}
@@ -173,7 +174,7 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
 .add-pill.l0{background:var(--ok)}.add-pill.l1{background:var(--warn)}.add-pill.l2{background:var(--crit)}.add-pill.lx{background:var(--muted)}
 .gfocus{margin:0;padding-inline-start:18px;display:flex;flex-direction:column;gap:4px}
 @media (max-width:620px){
-  .rank-grid{grid-template-columns:1fr}
+  .sit-list{grid-template-columns:1fr}
   .rx input{padding:7px 2px;font-size:.82rem}
   .rx th.eye{padding-inline-end:4px}
   .eye-l{display:none}
@@ -213,10 +214,12 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
 </div>
 
 <script>
-// v6: one ranking question. The participant ranks three everyday difficulty categories from hardest to easiest.
+// v7: the participant picks everyday situations that are hard for them, in order from hardest to easiest.
+// Situations belong to three categories; category weights come from the ranks of the chosen situations.
 const CATS = ['V','L','C'];
-const TOTAL = 3;
-const SPLIT = [50,30,20];
+const SIT = {V:['V1','V2','V3'], L:['L1','L2','L3'], C:['C1','C2','C3']};
+const ALL = [].concat(SIT.V, SIT.L, SIT.C);
+const catOf = s => s[0];
 
 const ICON = {
  V:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24z"/><circle cx="24" cy="24" r="6"/><path d="M33 33l9 9" stroke-width="2.5"/><circle cx="31" cy="31" r="1" fill="currentColor"/></svg>',
@@ -227,25 +230,32 @@ const ICON = {
 const T = {
  he:{
   title:'פרופיל אימון ראייה לקרוב',
-  sub:'שאלון קצר לנבדקים בני 40+. הנבדק מדרג שלושה סוגי קושי בראייה לקרוב, והדירוג קובע את סדר העדיפויות באימון ה־Gabor.',
+  sub:'שאלון קצר לנבדקים בני 40+. הנבדק בוחר ומדרג מצבים מהיום־יום שקשה לו לראות בהם, והדירוג קובע את סדר העדיפויות באימון ה־Gabor.',
   example:'מוצגות תשובות לדוגמה של נבדק בדוי (EX-01). לחצו על "נבדק חדש" כדי להתחיל.',
   newP:'נבדק חדש', code:'קוד נבדק', dob:'תאריך לידה', date:'תאריך בדיקה', age:'גיל', ageOut:a=>`גיל ${a}`,
   rxH:'מרשם לרחוק ו־ADD', rxLead:'לפי הבדיקה האופטומטרית. אפשר להשאיר שדה ריק אם אין ערך.',
   eye:{od:'ימין',os:'שמאל'}, rxCol:{sph:'Sph',cyl:'Cyl',ax:'Axis',add:'ADD'},
-  secA:'מה הכי מקשה עליך?',
-  rankLead:'קראו את הדוגמאות בשלוש הקטגוריות. לחצו קודם על הקטגוריה שהכי קשה לך, אחר כך על השנייה, ובסוף על הקלה ביותר.',
-  rankHint:['לחצו על הקשה ביותר','עכשיו על השנייה בקושי','ולבסוף על הקלה ביותר','הדירוג הושלם'],
-  rankLbl:['הכי קשה','שני','הכי קל'],
-  reset:'דירוג מחדש',
+  secA:'באילו מצבים קשה לך לראות?',
+  rankLead:'לחצו על המצבים שקשה לך לראות בהם, לפי הסדר: קודם הקשה ביותר, אחר כך הבא אחריו, וכן הלאה. לא צריך לבחור את כולם, רק את מה שבאמת מקשה. לחיצה נוספת מבטלת בחירה.',
+  hint:n=>n===0?'לחצו קודם על המצב הקשה ביותר':`נבחרו ${n} מצבים. אפשר להמשיך לבחור לפי סדר הקושי, או לסיים.`,
+  noneHint:'סומן: אין לי קושי באף אחד מהמצבים.',
+  first:'הכי קשה',
+  reset:'בחירה מחדש', none:'אין לי קושי באף אחד מהמצבים',
   cat:{V:'חדות ראייה',L:'תאורה חלשה',C:'ניגודיות נמוכה'},
-  ex:{
-   V:['קריאת אותיות קטנות על אריזות של תרופות ומזון','קריאת הודעות בטלפון בלי להגדיל את הטקסט','קריאת מחירים ותוויות קטנות בסופר','השחלת חוט במחט או עבודה עם פרטים קטנים'],
-   L:['קריאת תפריט במסעדה עם תאורה עמומה','קריאה במיטה לאור מנורת לילה','מציאת חפצים בתיק או בארנק בערב','קריאת שלטים ולוח המחוונים ברכב בשעות החשכה'],
-   C:['טקסט אפור על רקע לבן באתרים ובאפליקציות','קבלות או מסמכים מודפסים שדהו','כיתוב על רקע צבעוני, כמו תוויות על בקבוקים','קריאת מסך הטלפון בחוץ באור שמש חזק']
+  sit:{
+   V1:'קריאת אותיות קטנות על אריזות של תרופות ומזון',
+   V2:'קריאת הודעות בטלפון בלי להגדיל את הטקסט',
+   V3:'השחלת חוט במחט או עבודה עם פרטים קטנים',
+   L1:'קריאת תפריט במסעדה עם תאורה עמומה',
+   L2:'קריאה במיטה לאור מנורת לילה',
+   L3:'קריאת שלטים ולוח המחוונים ברכב בשעות החשכה',
+   C1:'טקסט אפור על רקע לבן באתרים ובאפליקציות',
+   C2:'קבלות או מסמכים מודפסים שדהו',
+   C3:'כיתוב על רקע צבעוני, כמו תוויות על בקבוקים'
   },
-  prog:(n,t)=>`${n} מתוך ${t} קטגוריות דורגו`, view:'לפרופיל',
-  rTitle:'פרופיל הנבדק', incomplete:n=>`הדירוג לא הושלם: חסרות ${n} קטגוריות.`,
-  orderH:'סדר הקושי', rankWord:r=>`מקום ${r}`,
+  prog:n=>n<0?'סומן: אין קושי':`${n} מצבים נבחרו`, view:'לפרופיל',
+  rTitle:'פרופיל הנבדק', incomplete:'לא נבחר אף מצב. בחרו לפחות מצב אחד, או סמנו "אין לי קושי".',
+  catH:'משקל לפי קטגוריה', sitH:'המצבים שנבחרו, מהקשה לקל', noneRes:'הנבדק סימן שאין לו קושי באף אחד מהמצבים.',
   addH:'ADD', addLvl:['נמוך','בינוני','גבוה'], addNone:'לא הוזן',
   rxRepH:'מרשם', rxNone:'לא הוזן',
   planH:'המלצת אימון',
@@ -257,39 +267,48 @@ const T = {
   flagAge:'גיל מתחת ל־40: מחוץ לאוכלוסיית היעד של המחקר.',
   flagRx:'לא הוזן מרשם לרחוק. יש להשלים לפני האימון.',
   flagAdd:'לא הוזן ADD: התדירות נקבעה לברירת מחדל של 4 פעמים בשבוע.',
+  flagNone:'הנבדק לא דיווח על קושי: מתאים כנבדק ביקורת. ההמלצה מבוססת על חלוקה שווה.',
   flagH:'הערות',
-  summary:r=>`סדר קושי: ${r.order.map(k=>T.he.cat[k]).join(' ← ')}. חלוקה ${r.order.map((k,i)=>SPLIT[i]+'%').join('/')}, ${r.wk} פעמים בשבוע × ${r.min} דק׳.`,
+  summary:r=>`${r.none?'ללא קושי מדווח. ':''}סדר: ${r.order.map(k=>T.he.cat[k]).join(' ← ')}. חלוקה ⁦${r.order.map(k=>r.split[k]+'%').join(' / ')}⁩, ${r.wk} פעמים בשבוע × ${r.min} דק׳.`,
   copySum:'העתק סיכום', copyCsv:'העתק שורת CSV', copied:'הועתק', copyFail:'ההעתקה נחסמה. הטקסט מסומן למטה, העתיקו ידנית.',
   method:'איך מחושב',
   methodItems:[
-   'הנבדק מדרג את שלוש הקטגוריות מהקשה לקלה. הדירוג קובע את סדר העבודה באימון.',
-   'חלוקת הבלוקים לפי הדירוג: מקום 1 = 50%, מקום 2 = 30%, מקום 3 = 20%.',
-   'ADD: הגבוה מבין שתי העיניים. ‎+2.00 ומעלה = גבוה (5 פעמים בשבוע), ‎+1.25 עד ‎+1.75 = בינוני (4 פעמים), עד ‎+1.00 = נמוך (3 פעמים). ללא ADD: 4 פעמים בשבוע.',
+   'כל מצב שנבחר מקבל ניקוד לפי המקום שלו: אם נבחרו n מצבים, הראשון (הקשה ביותר) מקבל n נקודות, השני n−1, וכן הלאה עד האחרון שמקבל נקודה אחת. מצב שלא נבחר מקבל 0.',
+   'משקל הקטגוריה = סכום הנקודות של המצבים שלה, כאחוז מסך כל הנקודות. הקטגוריות מסודרות לפי המשקל.',
+   'חלוקת הבלוקים לפי המשקל, עם מינימום 10% לכל קטגוריה, מעוגל ל־5. אם לא נבחר אף מצב: חלוקה שווה.',
+   'ADD: הגבוה מבין שתי העיניים. ‎+2.00 ומעלה = 5 פעמים בשבוע, ‎+1.25 עד ‎+1.75 = 4 פעמים, עד ‎+1.00 = 3 פעמים. ללא ADD: 4 פעמים.',
    'משך מפגש: 15 דקות. האימון תמיד עם תיקון לרחוק בלבד.'
   ],
   note:'כללי ההמלצה הם טיוטה למחקר ולא תוקפו. יש לאשר מול חדות הראייה ורגישות הניגודיות ב־40 ס״מ מהבדיקה האופטומטרית.'
  },
  en:{
   title:'Near Vision Training Profile',
-  sub:'A short questionnaire for participants aged 40+. The participant ranks three kinds of near-vision difficulty, and the ranking sets the priorities of the Gabor training.',
+  sub:'A short questionnaire for participants aged 40+. The participant picks and ranks everyday situations where seeing is hard, and the ranking sets the priorities of the Gabor training.',
   example:'Showing example answers for a made-up participant (EX-01). Press "New participant" to start.',
   newP:'New participant', code:'Participant code', dob:'Date of birth', date:'Test date', age:'Age', ageOut:a=>`Age ${a}`,
   rxH:'Distance prescription and ADD', rxLead:'From the optometric exam. Leave a field empty if there is no value.',
   eye:{od:'Right',os:'Left'}, rxCol:{sph:'Sph',cyl:'Cyl',ax:'Axis',add:'ADD'},
-  secA:'What is hardest for you?',
-  rankLead:'Read the examples in the three categories. Tap the one that is hardest for you first, then the second, and last the easiest.',
-  rankHint:['Tap the hardest','Now the second hardest','And finally the easiest','Ranking complete'],
-  rankLbl:['Hardest','Second','Easiest'],
-  reset:'Rank again',
+  secA:'In which situations is it hard for you to see?',
+  rankLead:'Tap the situations that are hard for you, in order: the hardest first, then the next, and so on. You don’t need to pick them all, only what really bothers you. Tap again to undo.',
+  hint:n=>n===0?'Tap the hardest situation first':`${n} situations picked. Keep picking in order of difficulty, or stop here.`,
+  noneHint:'Marked: no difficulty in any of these situations.',
+  first:'Hardest',
+  reset:'Start over', none:'None of these is hard for me',
   cat:{V:'Visual clarity',L:'Low light',C:'Low contrast'},
-  ex:{
-   V:['Reading small print on medicine and food packages','Reading messages on the phone without enlarging the text','Reading prices and small labels at the supermarket','Threading a needle or working with small details'],
-   L:['Reading a menu in a dimly lit restaurant','Reading in bed by a night lamp','Finding things in a bag or wallet in the evening','Reading signs and the car dashboard after dark'],
-   C:['Grey text on a white background on websites and apps','Faded receipts or printed documents','Print on a coloured background, like bottle labels','Reading the phone screen outdoors in bright sun']
+  sit:{
+   V1:'Reading small print on medicine and food packages',
+   V2:'Reading messages on the phone without enlarging the text',
+   V3:'Threading a needle or working with small details',
+   L1:'Reading a menu in a dimly lit restaurant',
+   L2:'Reading in bed by a night lamp',
+   L3:'Reading signs and the car dashboard after dark',
+   C1:'Grey text on a white background on websites and apps',
+   C2:'Faded receipts or printed documents',
+   C3:'Print on a coloured background, like bottle labels'
   },
-  prog:(n,t)=>`${n} of ${t} categories ranked`, view:'View profile',
-  rTitle:'Participant profile', incomplete:n=>`Ranking not complete: ${n} categories missing.`,
-  orderH:'Difficulty order', rankWord:r=>`Rank ${r}`,
+  prog:n=>n<0?'Marked: no difficulty':`${n} situations picked`, view:'View profile',
+  rTitle:'Participant profile', incomplete:'No situation picked yet. Pick at least one, or mark "None of these is hard for me".',
+  catH:'Weight by category', sitH:'Situations picked, hardest first', noneRes:'The participant marked no difficulty in any situation.',
   addH:'ADD', addLvl:['Low','Moderate','High'], addNone:'Not entered',
   rxRepH:'Prescription', rxNone:'Not entered',
   planH:'Training recommendation',
@@ -301,14 +320,16 @@ const T = {
   flagAge:'Under 40: outside the study’s target population.',
   flagRx:'No distance prescription entered. Complete it before training.',
   flagAdd:'No ADD entered: frequency set to the default of 4 times a week.',
+  flagNone:'No difficulty reported: suitable as a control. The recommendation uses an even split.',
   flagH:'Notes',
-  summary:r=>`Difficulty order: ${r.order.map(k=>T.en.cat[k]).join(' → ')}. Split ${r.order.map((k,i)=>SPLIT[i]+'%').join('/')}, ${r.wk}×/week × ${r.min} min.`,
+  summary:r=>`${r.none?'No difficulty reported. ':''}Order: ${r.order.map(k=>T.en.cat[k]).join(' → ')}. Split ${r.order.map(k=>r.split[k]+'%').join('/')}, ${r.wk}×/week × ${r.min} min.`,
   copySum:'Copy summary', copyCsv:'Copy CSV row', copied:'Copied', copyFail:'Copying was blocked. The text is selected below; copy it by hand.',
   method:'How it is calculated',
   methodItems:[
-   'The participant ranks the three categories from hardest to easiest. The ranking sets the work order in training.',
-   'Block split by rank: rank 1 = 50%, rank 2 = 30%, rank 3 = 20%.',
-   'ADD: the higher of the two eyes. +2.00 or more = high (5 times a week), +1.25 to +1.75 = moderate (4 times), up to +1.00 = low (3 times). No ADD: 4 times a week.',
+   'Each situation picked scores by its place: with n situations picked, the first (hardest) gets n points, the second n−1, and so on down to 1 for the last. Situations not picked score 0.',
+   'Category weight = the sum of its situations’ points, as a share of all points. Categories are ordered by weight.',
+   'Block split follows the weights, with at least 10% per category, rounded to 5. If nothing is picked: an even split.',
+   'ADD: the higher of the two eyes. +2.00 or more = 5 times a week, +1.25 to +1.75 = 4 times, up to +1.00 = 3 times. No ADD: 4 times.',
    'Session length: 15 minutes. Training is always with distance correction only.'
   ],
   note:'Recommendation rules are a study draft and have not been validated. Confirm against near acuity and contrast sensitivity at 40 cm from the optometric exam.'
@@ -320,9 +341,9 @@ const blankRx = () => ({od:{sph:'',cyl:'',ax:'',add:''}, os:{sph:'',cyl:'',ax:''
 const EXAMPLE = {
   code:'EX-01', dob:'1973-05-12', date:today(),
   rx:{od:{sph:'+0.50',cyl:'-0.50',ax:'90',add:'+2.00'}, os:{sph:'+0.75',cyl:'',ax:'',add:'+2.00'}},
-  rank:['V','L','C']
+  picks:['V1','L1','V2','C2','L2'], none:false
 };
-function blank(){ return {code:'',dob:'',date:today(),rx:blankRx(),rank:[]}; }
+function blank(){ return {code:'',dob:'',date:today(),rx:blankRx(),picks:[],none:false}; }
 
 let lang = 'he';
 let S = JSON.parse(JSON.stringify(EXAMPLE));
@@ -382,11 +403,6 @@ function renderChrome(){
   document.getElementById('lang-he').setAttribute('aria-pressed', lang==='he');
   document.getElementById('lang-en').setAttribute('aria-pressed', lang==='en');
 }
-function renderProgress(){
-  const a = answered();
-  document.getElementById('prog-text').textContent = T[lang].prog(a, TOTAL);
-  document.getElementById('prog-bar').style.width = (a/TOTAL*100)+'%';
-}
 function renderAll(){ renderChrome(); renderForm(); renderProgress(); renderResults(); }
 function updateAge(){
   const a = ageOf(S.dob, S.date), o = document.getElementById('age-out');
@@ -396,18 +412,20 @@ function updateAge(){
 
 function renderRank(){
   const t = T[lang];
-  const n = S.rank.length;
-  let h = `<p class="rank-hint" id="rank-hint">${esc(t.rankHint[n])}</p><div class="rank-grid" role="group" aria-label="${esc(t.secA)}">`;
+  const n = S.picks.length;
+  let h = `<p class="rank-hint" id="rank-hint">${esc(S.none?t.noneHint:t.hint(n))}</p>`;
   CATS.forEach(k=>{
-    const pos = S.rank.indexOf(k);
-    const badge = pos<0 ? '' : `<span class="rank-badge r${pos+1}"><b>${pos+1}</b><span>${esc(t.rankLbl[pos])}</span></span>`;
-    h += `<button type="button" class="rank-card${pos<0?'':' ranked r'+(pos+1)}" data-cat="${k}" aria-pressed="${pos>=0}">
-      <span class="rank-top">${ICON[k]}<span class="rank-name">${esc(t.cat[k])}</span>${badge}</span>
-      <ul>${t.ex[k].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></button>`;
+    h += `<div class="sit-group"><div class="sit-cat">${ICON[k]}<span>${esc(t.cat[k])}</span></div><div class="sit-list">`;
+    SIT[k].forEach(s=>{
+      const pos = S.picks.indexOf(s);
+      h += `<button type="button" class="sit${pos<0?'':' on'}" data-sit="${s}" aria-pressed="${pos>=0}">
+        <span class="sit-badge">${pos<0?'':pos+1}</span><span class="sit-text">${esc(t.sit[s])}</span>${pos===0?`<span class="sit-first">${esc(t.first)}</span>`:''}</button>`;
+    });
+    h += `</div></div>`;
   });
-  h += `</div>`;
-  if(n) h += `<button type="button" class="btn ghost rank-reset" id="rank-reset">${esc(t.reset)}</button>`;
-  return h;
+  h += `<div class="sit-actions"><button type="button" class="sit-none${S.none?' on':''}" id="sit-none" aria-pressed="${S.none}">${esc(t.none)}</button>`;
+  if(n) h += `<button type="button" class="btn ghost" id="rank-reset">${esc(t.reset)}</button>`;
+  return h + `</div>`;
 }
 
 function renderForm(){
@@ -428,16 +446,41 @@ function renderForm(){
       <td><input data-rx="${e}.add" inputmode="decimal" placeholder="+0.00" value="${esc(S.rx[e].add)}" aria-label="${e.toUpperCase()} ADD"></td></tr>`;
   });
   h += `</tbody></table></div>`;
-  const miss = showMissing && S.rank.length<TOTAL;
+  const miss = showMissing && !answered();
   h += `<div class="sheet${miss?' missing':''}" id="q-rank"><div class="sheet-h"><span class="tag">A</span><h2>${t.secA}</h2></div><p class="lead">${t.rankLead}</p><div id="rank-box">${renderRank()}</div></div>`;
   document.getElementById('form').innerHTML = h;
 }
 
-function answered(){ return S.rank.length; }
+function answered(){ return S.picks.length>0 || S.none; }
+function renderProgress(){
+  const n = S.none ? -1 : S.picks.length;
+  document.getElementById('prog-text').textContent = T[lang].prog(n);
+  document.getElementById('prog-bar').style.width = (S.none ? 100 : Math.min(100, S.picks.length/ALL.length*100))+'%';
+}
+
+function splitOf(w){
+  // w: {V,L,C} weights summing to 1 (or all 0). At least 10% each, rounded to 5, total 100.
+  const tot = CATS.reduce((a,k)=>a+w[k],0);
+  if(tot===0) return {V:35,L:35,C:30};
+  const raw = {}; CATS.forEach(k=>raw[k] = 10 + 70*w[k]/tot);
+  const out = {}; CATS.forEach(k=>out[k] = Math.round(raw[k]/5)*5);
+  let diff = 100 - CATS.reduce((a,k)=>a+out[k],0);
+  const order = CATS.slice().sort((a,b)=>w[b]-w[a]);
+  let i = 0;
+  while(diff!==0 && i<20){ const k = order[i%3]; const step = diff>0?5:-5; if(out[k]+step>=10){ out[k]+=step; diff-=step; } i++; }
+  return out;
+}
 
 function compute(){
   const t = T[lang];
-  const order = S.rank.slice();
+  const n = S.picks.length;
+  const pts = {V:0,L:0,C:0};
+  S.picks.forEach((s,i)=>{ pts[catOf(s)] += n - i; });
+  const tot = pts.V+pts.L+pts.C;
+  const pct = {}; CATS.forEach(k=>pct[k] = tot ? Math.round(pts[k]/tot*100) : 0);
+  const firstPos = k => { const i = S.picks.findIndex(s=>catOf(s)===k); return i<0 ? 99 : i; };
+  const order = CATS.slice().sort((a,b)=> pts[b]-pts[a] || firstPos(a)-firstPos(b));
+  const split = splitOf(pts);
   const adds = ['od','os'].map(e=>parseFloat(String(S.rx[e].add).replace(',','.'))).filter(x=>!isNaN(x));
   const addMax = adds.length ? Math.max(...adds) : null;
   const addLvl = addMax===null ? null : addMax>=2 ? 2 : addMax>=1.25 ? 1 : 0;
@@ -448,32 +491,35 @@ function compute(){
   if(age!==null && age<40) flags.push(t.flagAge);
   if(!rxLine()) flags.push(t.flagRx);
   if(addMax===null) flags.push(t.flagAdd);
-  return {order, addMax, addLvl, wk, min, weekly, flags, age};
+  if(S.none) flags.push(t.flagNone);
+  return {pts, pct, order, split, addMax, addLvl, wk, min, weekly, flags, age, none:S.none};
 }
 
 function renderResults(){
   const t = T[lang];
   const el = document.getElementById('results');
-  const missing = TOTAL - answered();
-  if(missing>0){
-    el.innerHTML = `<div class="report"><div class="r-head" style="grid-template-columns:1fr"><h2>${t.rTitle}</h2></div><p class="empty">${t.incomplete(missing)}</p></div>`;
+  if(!answered()){
+    el.innerHTML = `<div class="report"><div class="r-head" style="grid-template-columns:1fr"><h2>${t.rTitle}</h2></div><p class="empty">${t.incomplete}</p></div>`;
     return;
   }
   const r = compute();
   const who = [S.code||'—', r.age!==null?`${t.age} ${r.age}`:'', S.date].filter(Boolean).join(' · ');
   let h = `<div class="report">`;
   h += `<div class="r-head" style="grid-template-columns:1fr"><div class="r-meta"><span class="who"><span class="num">${esc(who)}</span></span><h2>${t.rTitle}</h2><p class="sum">${esc(t.summary(r))}</p></div></div>`;
-  h += `<div class="r-body"><div class="r-sec full"><h3>${t.orderH}</h3><ol class="podium">`;
+  h += `<div class="r-body"><div class="r-sec full"><h3>${t.catH}</h3><ol class="podium">`;
   r.order.forEach((k,i)=>{
-    h += `<li class="r${i+1}"><span class="pos">${i+1}</span>${ICON[k]}<span class="pname"><b>${esc(t.cat[k])}</b>${lang==='he'?`<bdi class="en" dir="ltr">${esc(T.en.cat[k])}</bdi>`:''}</span><span class="pbar"><i style="width:${SPLIT[i]}%"></i></span><span class="pct num">${SPLIT[i]}%</span></li>`;
+    h += `<li class="r${i+1}"><span class="pos">${i+1}</span>${ICON[k]}<span class="pname"><b>${esc(t.cat[k])}</b>${lang==='he'?`<bdi class="en" dir="ltr">${esc(T.en.cat[k])}</bdi>`:''}</span><span class="pbar"><i style="width:${r.pct[k]}%"></i></span><span class="pct num">${r.pct[k]}%</span></li>`;
   });
   h += `</ol></div>`;
+  h += `<div class="r-sec full"><h3>${t.sitH}</h3>`;
+  h += S.none ? `<p class="note">${esc(t.noneRes)}</p>` : `<ol class="sit-res">${S.picks.map(s=>`<li><span class="tagc c${catOf(s)}">${esc(t.cat[catOf(s)])}</span> ${esc(t.sit[s])}</li>`).join('')}</ol>`;
+  h += `</div>`;
   const rl = rxLine(), al = addLine();
   h += `<div class="r-sec"><h3>${t.addH}</h3><p class="add-big"><span class="num" dir="ltr">${r.addMax===null?'—':esc(fmtD(r.addMax))}</span> <span class="pill add-pill l${r.addLvl??'x'}">${r.addLvl===null?esc(t.addNone):esc(t.addLvl[r.addLvl])}</span></p></div>`;
   h += `<div class="r-sec"><h3>${t.rxRepH}</h3><p class="num" style="font-size:.86rem" dir="ltr">${esc(rl||t.rxNone)}${al?'<br>'+esc(al):''}</p></div>`;
   h += `<div class="r-sec full"><h3>${t.planH}</h3><table class="plan"><tbody>
     <tr><th>${t.rows.order}</th><td>${r.order.map(k=>esc(t.cat[k])).join(lang==='he'?' ← ':' → ')}</td></tr>
-    <tr><th>${t.rows.split}</th><td>${r.order.map((k,i)=>`${esc(t.cat[k])} ${SPLIT[i]}%`).join(' · ')}</td></tr>
+    <tr><th>${t.rows.split}</th><td>${r.order.map(k=>`${esc(t.cat[k])} ${r.split[k]}%`).join(' · ')}</td></tr>
     <tr><th>${t.rows.gabor}</th><td><ol class="gfocus">${r.order.map(k=>`<li><b>${esc(t.cat[k])}:</b> ${esc(t.gabor[k])}</li>`).join('')}</ol></td></tr>
     <tr><th>${t.rows.freq}</th><td>${esc(t.freq(r.wk))}</td></tr>
     <tr><th>${t.rows.session}</th><td>${esc(t.sess(r.min))}</td></tr>
@@ -496,7 +542,9 @@ function summaryText(r){
   const lines = [
     `${t.rTitle}: ${S.code||'—'} · ${t.dob} ${S.dob||'—'} (${t.age} ${r.age??'—'}) · ${S.date}`,
     `${t.rxRepH}: ${rxLine()||t.rxNone}${addLine()?' · '+addLine():''}`,
-    `${t.orderH}: ${r.order.map((k,i)=>`${i+1}. ${t.cat[k]} (${SPLIT[i]}%)`).join(' · ')}`,
+    `${t.catH}: ${r.order.map(k=>`${t.cat[k]} ${r.pct[k]}%`).join(' · ')}`,
+    `${t.sitH}: ${S.none?t.noneRes:S.picks.map((s,i)=>`${i+1}. ${t.sit[s]}`).join(' | ')}`,
+    `${t.rows.split}: ${r.order.map(k=>`${t.cat[k]} ${r.split[k]}%`).join(' · ')}`,
     `${t.rows.gabor}: ${r.order.map(k=>`${t.cat[k]}: ${t.gabor[k]}`).join(' | ')}`,
     `${t.rows.freq}: ${t.freq(r.wk)} · ${t.rows.session}: ${t.sess(r.min)} · ${t.rows.weekly}: ${t.weeklyFmt(r.weekly)}`,
     `${t.rows.corr}: ${t.corrTrain}`
@@ -506,28 +554,32 @@ function summaryText(r){
 }
 function csvText(r){
   const KEY = {V:'visual_clarity',L:'low_light',C:'low_contrast'};
-  const head = ['code','dob','age','date','od_sph','od_cyl','od_axis','od_add','os_sph','os_cyl','os_axis','os_add','rank_visual_clarity','rank_low_light','rank_low_contrast','order','add_max','sessions_week','session_min','weekly_min'];
+  const head = ['code','dob','age','date','od_sph','od_cyl','od_axis','od_add','os_sph','os_cyl','os_axis','os_add',
+    ...ALL.map(s=>'rank_'+s), 'weight_visual_clarity','weight_low_light','weight_low_contrast','order',
+    'split_visual_clarity','split_low_light','split_low_contrast','no_difficulty','add_max','sessions_week','session_min','weekly_min'];
   const rx = ['od','os'].flatMap(e=>['sph','cyl','ax','add'].map(k=>S.rx[e][k]));
-  const vals = [S.code,S.dob,r.age??'',S.date,...rx,...CATS.map(k=>r.order.indexOf(k)+1),r.order.map(k=>KEY[k]).join('>'),r.addMax??'',r.wk,r.min,r.weekly];
+  const vals = [S.code,S.dob,r.age??'',S.date,...rx, ...ALL.map(s=>{ const i=S.picks.indexOf(s); return i<0?'':i+1; }),
+    r.pct.V,r.pct.L,r.pct.C, r.order.map(k=>KEY[k]).join('>'), r.split.V,r.split.L,r.split.C, S.none?1:0, r.addMax??'', r.wk, r.min, r.weekly];
   const q = v => { v = String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; };
   return head.join(',') + '\n' + vals.map(q).join(',');
 }
 
 function rankChanged(){
   document.getElementById('rank-box').innerHTML = renderRank();
-  if(S.rank.length===TOTAL){ const q = document.getElementById('q-rank'); if(q) q.classList.remove('missing'); }
+  if(answered()){ const q = document.getElementById('q-rank'); if(q) q.classList.remove('missing'); }
   renderProgress(); renderResults();
 }
 document.getElementById('form').addEventListener('click', e=>{
-  const card = e.target.closest('.rank-card');
-  if(card){
-    const k = card.dataset.cat, pos = S.rank.indexOf(k);
-    if(pos<0) S.rank.push(k); else S.rank.splice(pos);
+  const b = e.target.closest('.sit');
+  if(b){
+    const s = b.dataset.sit, pos = S.picks.indexOf(s);
+    if(pos<0){ S.picks.push(s); S.none = false; } else S.picks.splice(pos,1);
     rankChanged();
-    const again = document.querySelector(`.rank-card[data-cat="${k}"]`); if(again) again.focus();
+    const again = document.querySelector(`.sit[data-sit="${s}"]`); if(again) again.focus();
     return;
   }
-  if(e.target.closest('#rank-reset')){ S.rank = []; rankChanged(); }
+  if(e.target.closest('#sit-none')){ S.none = !S.none; if(S.none) S.picks = []; rankChanged(); const x=document.getElementById('sit-none'); if(x) x.focus(); return; }
+  if(e.target.closest('#rank-reset')){ S.picks = []; S.none = false; rankChanged(); }
 });
 document.getElementById('form').addEventListener('input', e=>{
   const f = e.target.dataset.f, rx = e.target.dataset.rx;
@@ -541,7 +593,7 @@ document.getElementById('btn-new').addEventListener('click', ()=>{
   document.getElementById('f-code').focus();
 });
 document.getElementById('btn-view').addEventListener('click', ()=>{
-  if(answered()<TOTAL){
+  if(!answered()){
     showMissing = true; renderForm();
     const first = document.getElementById('q-rank');
     if(first){ first.scrollIntoView({block:'center'}); return; }

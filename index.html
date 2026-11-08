@@ -128,7 +128,7 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
   .bar-row,.axis{grid-template-columns:minmax(0,7em) 1fr 3.6em}
 }
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .35s ease}}
-/* v7: pick and rank situations, birth date + age, distance Rx table */
+/* v8: pick and rank situations, with other, birth date + age, distance Rx table */
 .dob-row{display:flex;gap:8px;align-items:center}
 .dob-row input{flex:1}
 .age-out{font-family:var(--f-mono);font-size:.9rem;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:6px 10px;white-space:nowrap;min-width:5.5em;text-align:center}
@@ -153,6 +153,9 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
 .sit.on .sit-badge{background:var(--accent);border:0;color:var(--sel-fg)}
 .sit-text{flex:1;min-width:0}
 .sit-first{position:absolute;top:-9px;inset-inline-end:8px;font-size:.68rem;background:var(--crit);color:#fff;border-radius:999px;padding:1px 8px}
+.sit-other{display:flex;flex-direction:column;gap:8px}
+.sit-other textarea{font:inherit;font-size:.9rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical;min-height:56px;width:100%}
+.sit-other textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .sit-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
 .sit-none{font:inherit;font-size:.88rem;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;min-height:40px}
 .sit-none.on{background:var(--ok);border-color:var(--ok);color:#fff}
@@ -220,10 +223,12 @@ const CATS = ['V','L','C'];
 const SIT = {V:['V1','V2','V3'], L:['L1','L2','L3'], C:['C1','C2','C3']};
 const ALL = [].concat(SIT.V, SIT.L, SIT.C);
 const catOf = s => s[0];
+const OTHER = 'O';
 
 const ICON = {
  V:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24z"/><circle cx="24" cy="24" r="6"/><path d="M33 33l9 9" stroke-width="2.5"/><circle cx="31" cy="31" r="1" fill="currentColor"/></svg>',
  L:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M30 8a15 15 0 1 0 10 25A13 13 0 0 1 30 8z"/><path d="M10 40h16M10 44h10" stroke-width="1.5"/></svg>',
+ O:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M30 8l10 10-20 20H10V28z"/><path d="M26 12l10 10"/><path d="M8 44h32" stroke-width="1.5"/></svg>',
  C:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 7a17 17 0 0 1 0 34z" fill="currentColor" opacity=".35" stroke="none"/><path d="M11 20h9M11 24h7M11 28h9" stroke-width="1.4"/><path d="M28 20h9M28 24h7M28 28h9" stroke-width="1.4" opacity=".4"/></svg>'
 };
 
@@ -241,7 +246,8 @@ const T = {
   noneHint:'סומן: אין לי קושי באף אחד מהמצבים.',
   first:'הכי קשה',
   reset:'בחירה מחדש', none:'אין לי קושי באף אחד מהמצבים',
-  cat:{V:'חדות ראייה',L:'תאורה חלשה',C:'ניגודיות נמוכה'},
+  cat:{V:'חדות ראייה',L:'תאורה חלשה',C:'ניגודיות נמוכה',O:'אחר'},
+  otherBtn:'מצב אחר שקשה לי בו', otherPh:'תארו במילים שלכם מצב נוסף שקשה לכם לראות בו (לא חובה)',
   sit:{
    V1:'קריאת אותיות קטנות על אריזות של תרופות ומזון',
    V2:'קריאת הודעות בטלפון בלי להגדיל את הטקסט',
@@ -277,7 +283,8 @@ const T = {
    'משקל הקטגוריה = סכום הנקודות של המצבים שלה, כאחוז מסך כל הנקודות. הקטגוריות מסודרות לפי המשקל.',
    'חלוקת הבלוקים לפי המשקל, עם מינימום 10% לכל קטגוריה, מעוגל ל־5. אם לא נבחר אף מצב: חלוקה שווה.',
    'ADD: הגבוה מבין שתי העיניים. ‎+2.00 ומעלה = 5 פעמים בשבוע, ‎+1.25 עד ‎+1.75 = 4 פעמים, עד ‎+1.00 = 3 פעמים. ללא ADD: 4 פעמים.',
-   'משך מפגש: 15 דקות. האימון תמיד עם תיקון לרחוק בלבד.'
+   'משך מפגש: 15 דקות. האימון תמיד עם תיקון לרחוק בלבד.',
+   '"אחר": המצב שהנבדק תיאר נשמר עם המקום שלו בדירוג ומוצג בפרופיל, אבל לא נכנס לחישוב המשקל של הקטגוריות.'
   ],
   note:'כללי ההמלצה הם טיוטה למחקר ולא תוקפו. יש לאשר מול חדות הראייה ורגישות הניגודיות ב־40 ס״מ מהבדיקה האופטומטרית.'
  },
@@ -294,7 +301,8 @@ const T = {
   noneHint:'Marked: no difficulty in any of these situations.',
   first:'Hardest',
   reset:'Start over', none:'None of these is hard for me',
-  cat:{V:'Visual clarity',L:'Low light',C:'Low contrast'},
+  cat:{V:'Visual clarity',L:'Low light',C:'Low contrast',O:'Other'},
+  otherBtn:'Another situation that is hard for me', otherPh:'Describe in your own words another situation where seeing is hard (optional)',
   sit:{
    V1:'Reading small print on medicine and food packages',
    V2:'Reading messages on the phone without enlarging the text',
@@ -330,7 +338,8 @@ const T = {
    'Category weight = the sum of its situations’ points, as a share of all points. Categories are ordered by weight.',
    'Block split follows the weights, with at least 10% per category, rounded to 5. If nothing is picked: an even split.',
    'ADD: the higher of the two eyes. +2.00 or more = 5 times a week, +1.25 to +1.75 = 4 times, up to +1.00 = 3 times. No ADD: 4 times.',
-   'Session length: 15 minutes. Training is always with distance correction only.'
+   'Session length: 15 minutes. Training is always with distance correction only.',
+   '"Other": the situation the participant described is kept with its place in the ranking and shown in the profile, but does not count toward the category weights.'
   ],
   note:'Recommendation rules are a study draft and have not been validated. Confirm against near acuity and contrast sensitivity at 40 cm from the optometric exam.'
  }
@@ -341,9 +350,9 @@ const blankRx = () => ({od:{sph:'',cyl:'',ax:'',add:''}, os:{sph:'',cyl:'',ax:''
 const EXAMPLE = {
   code:'EX-01', dob:'1973-05-12', date:today(),
   rx:{od:{sph:'+0.50',cyl:'-0.50',ax:'90',add:'+2.00'}, os:{sph:'+0.75',cyl:'',ax:'',add:'+2.00'}},
-  picks:['V1','L1','V2','C2','L2'], none:false
+  picks:['V1','L1','V2','C2','L2'], none:false, other:''
 };
-function blank(){ return {code:'',dob:'',date:today(),rx:blankRx(),picks:[],none:false}; }
+function blank(){ return {code:'',dob:'',date:today(),rx:blankRx(),picks:[],none:false,other:''}; }
 
 let lang = 'he';
 let S = JSON.parse(JSON.stringify(EXAMPLE));
@@ -423,6 +432,10 @@ function renderRank(){
     });
     h += `</div></div>`;
   });
+  const po = S.picks.indexOf(OTHER);
+  h += `<div class="sit-group"><div class="sit-cat">${ICON.O}<span>${esc(t.cat.O)}</span></div><div class="sit-other">
+    <button type="button" class="sit${po<0?'':' on'}" data-sit="${OTHER}" aria-pressed="${po>=0}"><span class="sit-badge">${po<0?'':po+1}</span><span class="sit-text">${esc(t.otherBtn)}</span>${po===0?`<span class="sit-first">${esc(t.first)}</span>`:''}</button>
+    <textarea id="other-text" data-other="1" rows="2" placeholder="${esc(t.otherPh)}" aria-label="${esc(t.otherBtn)}">${esc(S.other||'')}</textarea></div></div>`;
   h += `<div class="sit-actions"><button type="button" class="sit-none${S.none?' on':''}" id="sit-none" aria-pressed="${S.none}">${esc(t.none)}</button>`;
   if(n) h += `<button type="button" class="btn ghost" id="rank-reset">${esc(t.reset)}</button>`;
   return h + `</div>`;
@@ -451,6 +464,7 @@ function renderForm(){
   document.getElementById('form').innerHTML = h;
 }
 
+function sitLabel(s, pre=true){ const t = T[lang]; return s===OTHER ? `${pre?t.cat.O+': ':''}${(S.other||'').trim()||t.otherBtn}` : t.sit[s]; }
 function answered(){ return S.picks.length>0 || S.none; }
 function renderProgress(){
   const n = S.none ? -1 : S.picks.length;
@@ -475,7 +489,7 @@ function compute(){
   const t = T[lang];
   const n = S.picks.length;
   const pts = {V:0,L:0,C:0};
-  S.picks.forEach((s,i)=>{ pts[catOf(s)] += n - i; });
+  S.picks.forEach((s,i)=>{ if(s!==OTHER) pts[catOf(s)] += n - i; });
   const tot = pts.V+pts.L+pts.C;
   const pct = {}; CATS.forEach(k=>pct[k] = tot ? Math.round(pts[k]/tot*100) : 0);
   const firstPos = k => { const i = S.picks.findIndex(s=>catOf(s)===k); return i<0 ? 99 : i; };
@@ -512,7 +526,7 @@ function renderResults(){
   });
   h += `</ol></div>`;
   h += `<div class="r-sec full"><h3>${t.sitH}</h3>`;
-  h += S.none ? `<p class="note">${esc(t.noneRes)}</p>` : `<ol class="sit-res">${S.picks.map(s=>`<li><span class="tagc c${catOf(s)}">${esc(t.cat[catOf(s)])}</span> ${esc(t.sit[s])}</li>`).join('')}</ol>`;
+  h += S.none ? `<p class="note">${esc(t.noneRes)}</p>` : `<ol class="sit-res">${S.picks.map(s=>`<li><span class="tagc c${catOf(s)}">${esc(t.cat[catOf(s)])}</span> ${esc(sitLabel(s,false))}</li>`).join('')}</ol>`;
   h += `</div>`;
   const rl = rxLine(), al = addLine();
   h += `<div class="r-sec"><h3>${t.addH}</h3><p class="add-big"><span class="num" dir="ltr">${r.addMax===null?'—':esc(fmtD(r.addMax))}</span> <span class="pill add-pill l${r.addLvl??'x'}">${r.addLvl===null?esc(t.addNone):esc(t.addLvl[r.addLvl])}</span></p></div>`;
@@ -543,7 +557,7 @@ function summaryText(r){
     `${t.rTitle}: ${S.code||'—'} · ${t.dob} ${S.dob||'—'} (${t.age} ${r.age??'—'}) · ${S.date}`,
     `${t.rxRepH}: ${rxLine()||t.rxNone}${addLine()?' · '+addLine():''}`,
     `${t.catH}: ${r.order.map(k=>`${t.cat[k]} ${r.pct[k]}%`).join(' · ')}`,
-    `${t.sitH}: ${S.none?t.noneRes:S.picks.map((s,i)=>`${i+1}. ${t.sit[s]}`).join(' | ')}`,
+    `${t.sitH}: ${S.none?t.noneRes:S.picks.map((s,i)=>`${i+1}. ${sitLabel(s)}`).join(' | ')}`,
     `${t.rows.split}: ${r.order.map(k=>`${t.cat[k]} ${r.split[k]}%`).join(' · ')}`,
     `${t.rows.gabor}: ${r.order.map(k=>`${t.cat[k]}: ${t.gabor[k]}`).join(' | ')}`,
     `${t.rows.freq}: ${t.freq(r.wk)} · ${t.rows.session}: ${t.sess(r.min)} · ${t.rows.weekly}: ${t.weeklyFmt(r.weekly)}`,
@@ -556,10 +570,10 @@ function csvText(r){
   const KEY = {V:'visual_clarity',L:'low_light',C:'low_contrast'};
   const head = ['code','dob','age','date','od_sph','od_cyl','od_axis','od_add','os_sph','os_cyl','os_axis','os_add',
     ...ALL.map(s=>'rank_'+s), 'weight_visual_clarity','weight_low_light','weight_low_contrast','order',
-    'split_visual_clarity','split_low_light','split_low_contrast','no_difficulty','add_max','sessions_week','session_min','weekly_min'];
+    'split_visual_clarity','split_low_light','split_low_contrast','rank_other','other_text','no_difficulty','add_max','sessions_week','session_min','weekly_min'];
   const rx = ['od','os'].flatMap(e=>['sph','cyl','ax','add'].map(k=>S.rx[e][k]));
   const vals = [S.code,S.dob,r.age??'',S.date,...rx, ...ALL.map(s=>{ const i=S.picks.indexOf(s); return i<0?'':i+1; }),
-    r.pct.V,r.pct.L,r.pct.C, r.order.map(k=>KEY[k]).join('>'), r.split.V,r.split.L,r.split.C, S.none?1:0, r.addMax??'', r.wk, r.min, r.weekly];
+    r.pct.V,r.pct.L,r.pct.C, r.order.map(k=>KEY[k]).join('>'), r.split.V,r.split.L,r.split.C, (S.picks.indexOf(OTHER)+1)||'', (S.other||'').trim(), S.none?1:0, r.addMax??'', r.wk, r.min, r.weekly];
   const q = v => { v = String(v??''); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; };
   return head.join(',') + '\n' + vals.map(q).join(',');
 }
@@ -575,7 +589,7 @@ document.getElementById('form').addEventListener('click', e=>{
     const s = b.dataset.sit, pos = S.picks.indexOf(s);
     if(pos<0){ S.picks.push(s); S.none = false; } else S.picks.splice(pos,1);
     rankChanged();
-    const again = document.querySelector(`.sit[data-sit="${s}"]`); if(again) again.focus();
+    const again = (s===OTHER && pos<0 && !(S.other||'').trim()) ? document.getElementById('other-text') : document.querySelector(`.sit[data-sit="${s}"]`); if(again) again.focus();
     return;
   }
   if(e.target.closest('#sit-none')){ S.none = !S.none; if(S.none) S.picks = []; rankChanged(); const x=document.getElementById('sit-none'); if(x) x.focus(); return; }
@@ -583,6 +597,17 @@ document.getElementById('form').addEventListener('click', e=>{
 });
 document.getElementById('form').addEventListener('input', e=>{
   const f = e.target.dataset.f, rx = e.target.dataset.rx;
+  if(e.target.dataset.other){
+    S.other = e.target.value;
+    const has = S.other.trim()!=='', on = S.picks.includes(OTHER);
+    if(has!==on){
+      if(has){ S.picks.push(OTHER); S.none = false; } else S.picks.splice(S.picks.indexOf(OTHER),1);
+      const caret = e.target.selectionStart;
+      rankChanged();
+      const ta = document.getElementById('other-text'); if(ta){ ta.focus(); ta.setSelectionRange(caret,caret); }
+    } else renderResults();
+    return;
+  }
   if(f){ S[f] = e.target.value; if(f==='dob'||f==='date') updateAge(); renderResults(); }
   else if(rx){ const [eye,k] = rx.split('.'); S.rx[eye][k] = e.target.value.trim(); renderResults(); }
 });

@@ -185,31 +185,36 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
   .podium li{grid-template-columns:2em 28px minmax(0,1fr) 3em;}
   .podium .pbar{display:none}
 }
-/* v9: rate each situation 0–10, no category labels, random order per participant */
-.rate-legend{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;color:var(--muted)}
-.rate-list{display:flex;flex-direction:column;gap:10px}
-.rate-item{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
-.rate-item.on{border-color:var(--accent);background:var(--accent-soft)}
-.rate-text{font-weight:500;font-size:.95rem}
-.rate-scale{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}
-.rv{font:inherit;font-family:var(--f-mono);font-size:.88rem;min-height:38px;min-width:0;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer;padding:0}
-.rv.z{margin-inline-end:6px;color:var(--muted)}
-.rv:hover{border-color:var(--accent)}
-.rv[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sel-fg)}
-.rv.z[aria-pressed="true"]{background:var(--muted);border-color:var(--muted);color:var(--sel-fg)}
-.rv:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.rate-ends{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
-.rate-item textarea{font:inherit;font-size:.9rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical;min-height:48px;width:100%}
+/* v10: rating UI. Question text leads; a compact 0–10 scale coloured from green (1, mild) to red (10, severe); 0 is neutral. */
+.rate-legend{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:.78rem;color:var(--muted);max-width:460px}
+.rate-legend .grad{height:6px;border-radius:3px;background:linear-gradient(to right,#1e9e4a,#8cc63f,#f2c12e,#f28c28,#d62828)}
+html[dir="rtl"] .rate-legend .grad{background:linear-gradient(to left,#1e9e4a,#8cc63f,#f2c12e,#f28c28,#d62828)}
+.rate-list{display:flex;flex-direction:column;gap:12px}
+.rate-item{position:relative;border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;background:var(--surface);transition:border-color .2s,box-shadow .2s}
+.rate-item::before{content:"";position:absolute;inset-block:10px;inset-inline-start:-1px;width:4px;border-radius:0 4px 4px 0;background:var(--sel,transparent);transition:background .2s}
+html[dir="rtl"] .rate-item::before{border-radius:4px 0 0 4px}
+.rate-item.on{border-color:color-mix(in srgb,var(--sel) 45%,var(--line));box-shadow:0 1px 0 color-mix(in srgb,var(--sel) 12%,transparent),0 6px 18px -12px color-mix(in srgb,var(--sel) 60%,transparent)}
+.rate-text{font-weight:600;font-size:1.12rem;line-height:1.4;letter-spacing:-.005em;color:var(--ink)}
+.rate-scale{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px;max-width:460px}
+.rv{--c:#8a94a3;font:inherit;font-family:var(--f-mono);font-size:.78rem;font-weight:500;height:30px;min-width:0;padding:0;border:1px solid var(--line);border-bottom:2px solid color-mix(in srgb,var(--c) 70%,transparent);border-radius:6px;background:var(--bg);color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border-color .15s,transform .1s}
+.rv.z{margin-inline-end:8px}
+.rv:hover{border-color:var(--c);color:var(--ink)}
+.rv:active{transform:scale(.94)}
+.rv[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--cf,#fff);font-weight:700}
+.rv:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.rate-item textarea{font:inherit;font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;resize:vertical;min-height:48px;width:100%}
 .rate-item textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .sit-res{list-style:none;padding:0}
 .sit-res li{display:flex;gap:10px;align-items:baseline}
-.rate-val{flex:none;font-family:var(--f-mono);font-weight:600;font-size:.85rem;min-width:3.4em;text-align:center;border-radius:6px;padding:1px 6px;background:var(--accent-soft);color:var(--accent);direction:ltr}
+.rate-val{flex:none;font-family:var(--f-mono);font-weight:700;font-size:.82rem;min-width:3.4em;text-align:center;border-radius:6px;padding:2px 6px;background:var(--c,var(--accent-soft));color:var(--cf,var(--accent));direction:ltr}
 .pname .avg{font-size:.72rem;color:var(--muted)}
 .generic-pill{background:var(--muted)}
 @media (max-width:620px){
-  .rate-scale{gap:2px}
-  .rv{font-size:.76rem;min-height:36px;border-radius:5px}
-  .rv.z{margin-inline-end:3px}
+  .rate-item{padding:14px 14px}
+  .rate-text{font-size:1.04rem}
+  .rate-scale{gap:3px;max-width:none}
+  .rv{height:32px;font-size:.74rem;border-radius:5px}
+  .rv.z{margin-inline-end:4px}
 }
 </style>
 </head><body>
@@ -244,7 +249,7 @@ details ul{margin:8px 0 0;padding-inline-start:18px;display:flex;flex-direction:
 </div>
 
 <script>
-// v9: the participant rates each of 9 everyday situations from 0 to 10 (0 or skip = doesn't bother).
+// v10: refined rating UI (green→red scale). v9: the participant rates each of 9 everyday situations from 0 to 10 (0 or skip = doesn't bother).
 // Situations are shown without category labels, in a random order for each participant.
 // Category weights come from the sum of the ratings of each category's situations.
 const VERSION = 'v9-rating';
@@ -271,7 +276,7 @@ const T = {
   eye:{od:'ימין',os:'שמאל'}, rxCol:{sph:'Sph',cyl:'Cyl',ax:'Axis',add:'ADD'},
   secA:'עד כמה קשה לך לראות במצבים האלה?',
   rateLead:'לכל מצב, בחרו עד כמה הוא מפריע לכם: 1 מפריע מעט, 10 מפריע מאוד. אם המצב לא מפריע לכם, בחרו 0 או דלגו עליו. לחיצה נוספת על אותו מספר מבטלת את הבחירה.',
-  lo:'0 = לא מפריע', hi:'10 = מפריע מאוד',
+  lo:'0 לא מפריע · 1 מעט', hi:'10 מאוד',
   hint:n=>`דורגו ${n} מתוך 9 מצבים`,
   noneHint:'סומן: אין לי קושי באף אחד מהמצבים.',
   reset:'ניקוי הדירוגים', none:'אין לי קושי באף אחד מהמצבים',
@@ -330,7 +335,7 @@ const T = {
   eye:{od:'Right',os:'Left'}, rxCol:{sph:'Sph',cyl:'Cyl',ax:'Axis',add:'ADD'},
   secA:'How hard is it for you to see in these situations?',
   rateLead:'For each situation, pick how much it bothers you: 1 bothers a little, 10 bothers a lot. If it doesn’t bother you, pick 0 or skip it. Tap the same number again to undo.',
-  lo:'0 = doesn’t bother', hi:'10 = bothers a lot',
+  lo:'0 not at all · 1 a little', hi:'10 a lot',
   hint:n=>`${n} of 9 situations rated`,
   noneHint:'Marked: no difficulty in any of these situations.',
   reset:'Clear ratings', none:'None of these is hard for me',
@@ -466,19 +471,24 @@ function updateAge(){
 }
 
 const ratedCount = () => ALL.filter(s=>S.rate[s]!==null).length;
+// Rating colours: 0 neutral; 1 green (mild) through 10 red (severe). cf = text colour on the filled button.
+const RC = ['#8a94a3','#1e9e4a','#4cad44','#8cc63f','#c3cf2f','#f2c12e','#f6a623','#f28c28','#ea6227','#de3f26','#d62828'];
+const RF = v => (v>=3 && v<=7) ? '#15202e' : '#ffffff';
+const rcStyle = v => (v===null||v===undefined) ? '' : `--c:${RC[v]};--cf:${RF(v)}`;
 function scaleHtml(id, cur, label){
   return `<div class="rate-scale" role="group" aria-label="${esc(label)}">${VALS.map(v=>
-    `<button type="button" class="rv${v===0?' z':''}" data-sit="${id}" data-v="${v}" aria-pressed="${cur===v}">${v}</button>`).join('')}</div>`;
+    `<button type="button" class="rv${v===0?' z':''}" style="${rcStyle(v)}" data-sit="${id}" data-v="${v}" aria-pressed="${cur===v}">${v}</button>`).join('')}</div>`;
 }
+const itemAttr = v => v>0 ? ` on" style="--sel:${RC[v]}` : '';
 function renderRate(){
   const t = T[lang];
   let h = `<p class="rank-hint" id="rank-hint">${esc(S.none?t.noneHint:t.hint(ratedCount()))}</p>`;
-  h += `<div class="rate-legend"><span>${esc(t.lo)}</span><span>${esc(t.hi)}</span></div><div class="rate-list">`;
+  h += `<div class="rate-legend"><span>${esc(t.lo)}</span><span class="grad"></span><span>${esc(t.hi)}</span></div><div class="rate-list">`;
   S.shown.forEach(s=>{
     const v = S.rate[s];
-    h += `<div class="rate-item${v>0?' on':''}"><p class="rate-text">${esc(t.sit[s])}</p>${scaleHtml(s, v, t.sit[s])}</div>`;
+    h += `<div class="rate-item${itemAttr(v)}"><p class="rate-text">${esc(t.sit[s])}</p>${scaleHtml(s, v, t.sit[s])}</div>`;
   });
-  h += `<div class="rate-item${S.otherRate>0?' on':''}"><p class="rate-text">${esc(t.otherBtn)}</p>
+  h += `<div class="rate-item${itemAttr(S.otherRate)}"><p class="rate-text">${esc(t.otherBtn)}</p>
     <textarea id="other-text" data-other="1" rows="2" placeholder="${esc(t.otherPh)}" aria-label="${esc(t.otherBtn)}">${esc(S.other||'')}</textarea>
     ${scaleHtml(OTHER, S.otherRate, t.otherBtn)}</div>`;
   h += `</div><div class="sit-actions"><button type="button" class="sit-none${S.none?' on':''}" id="sit-none" aria-pressed="${S.none}">${esc(t.none)}</button>`;
@@ -583,7 +593,7 @@ function renderResults(){
   h += `</ol></div>`;
   const b = bothered();
   h += `<div class="r-sec full"><h3>${t.sitH}</h3>`;
-  h += (S.none || !b.length) ? `<p class="note">${esc(t.noneRes)}</p>` : `<ol class="sit-res">${b.map(x=>`<li><span class="rate-val">${x.v??'—'}/10</span><span>${x.s===OTHER?'':`<span class="tagc">${esc(t.cat[catOf(x.s)])}</span> `}${esc(sitLabel(x.s))}</span></li>`).join('')}</ol>`;
+  h += (S.none || !b.length) ? `<p class="note">${esc(t.noneRes)}</p>` : `<ol class="sit-res">${b.map(x=>`<li><span class="rate-val" style="${rcStyle(x.v)}">${x.v??'—'}/10</span><span>${x.s===OTHER?'':`<span class="tagc">${esc(t.cat[catOf(x.s)])}</span> `}${esc(sitLabel(x.s))}</span></li>`).join('')}</ol>`;
   h += `</div>`;
   const rl = rxLine(), al = addLine();
   h += `<div class="r-sec"><h3>${t.addH}</h3><p class="add-big"><span class="num" dir="ltr">${r.addMax===null?'—':esc(fmtD(r.addMax))}</span> <span class="pill add-pill l${r.addLvl??'x'}">${r.addLvl===null?esc(t.addNone):esc(t.addLvl[r.addLvl])}</span></p></div>`;
